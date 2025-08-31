@@ -1,4 +1,4 @@
-package com.example.wheelfasterx
+package com.example.wheelfaster
 
 import io.flutter.embedding.android.FlutterActivity
 
