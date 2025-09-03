@@ -15,19 +15,24 @@ class AppBottomNavigationBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: selectedIndex,
       onTap: onTap,
+      type: BottomNavigationBarType.fixed,
       selectedItemColor: const Color(0xFF01CE55),
-      items: const [
+      items: [
+        const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(
-          icon: Icon(Icons.home, color: Color(0xFF01CE55)),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search, color: Color(0xFF01CE55)),
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+
+            child: const Icon(
+              Icons.search,
+              size: 36, // 👈 ทำให้ปุ่มกลางใหญ่กว่า
+            ),
+          ),
           label: 'Search',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person, color: Color(0xFF01CE55)),
-          label: 'Profile',
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.map_sharp),
+          label: 'Map',
         ),
       ],
     );
