@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:slide_to_act/slide_to_act.dart';
-import 'package:wheelfaster/component/search_sheet.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../component/bottom_nav.dart';
-import 'mappage.dart';
+import 'package:wheelfaster/controllers/map_controller.dart';
+import 'package:wheelfaster/pages/map.dart';
+import 'package:wheelfaster/component/bottom_nav.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,131 +15,38 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedTab = 0;
-  final List<Widget> _pages = [];
 
   @override
   void initState() {
     super.initState();
-    _pages.addAll([
-      _buildHomePage(), // index 0
-      const SizedBox(), // index 1 (ไม่ใช้หน้า แค่ดักกดเพื่อเปิด popup)
-      MapPage(
-        // index 2
-        onBack: () => setState(() => _selectedTab = 0),
-      ),
-    ]);
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = context.read<MyMapController>();
+
     return Scaffold(
       backgroundColor: const Color(0xFF01CE55),
-      body: _pages[_selectedTab],
+      body: IndexedStack(
+        index: _selectedTab,
+        children: [
+          _buildHomePage(), // 0
+          const SizedBox(), // 1
+          AllMap(), // 2  (เอา const ออก เพื่อให้ build ใหม่ได้ชัวร์)
+        ],
+      ),
       bottomNavigationBar: AppBottomNavigationBar(
         selectedIndex: _selectedTab,
         onTap: (index) async {
           if (index == 1) {
-            // 1) ไปหน้าแผนที่ก่อน (index 2)
             setState(() => _selectedTab = 2);
-
-            // 2) รอให้หน้า map build เสร็จ แล้วค่อยเปิด popup
-            WidgetsBinding.instance.addPostFrameCallback((_) async {
-              if (!mounted) return;
-              await showPlaceSearchSheet(context);
-            });
-            return; // ไม่ต้องตั้ง _selectedTab = 1
+          } else {
+            setState(() => _selectedTab = index);
           }
-          setState(() => _selectedTab = index);
         },
       ),
     );
   }
-
-  // ---------------- Popup Search ----------------
-  // Future<void> _openSearchPopup(BuildContext context) {
-  //   return showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     backgroundColor: Colors.transparent,
-  //     builder: (_) {
-  //       return DraggableScrollableSheet(
-  //         initialChildSize: 0.3,
-  //         minChildSize: 0.2,
-  //         maxChildSize: 0.9,
-  //         snap: true,
-  //         snapSizes: const [0.3, 0.6, 0.9],
-  //         builder: (context, scrollController) {
-  //           return Container(
-  //             decoration: const BoxDecoration(
-  //               color: Colors.white,
-  //               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //             ),
-  //             child: Column(
-  //               children: [
-  //                 const SizedBox(height: 8),
-  //                 Container(
-  //                   width: 40,
-  //                   height: 5,
-  //                   decoration: BoxDecoration(
-  //                     color: Colors.black26,
-  //                     borderRadius: BorderRadius.circular(3),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(height: 12),
-
-  //                 // Search bar
-  //                 Padding(
-  //                   padding: const EdgeInsets.symmetric(horizontal: 12),
-  //                   child: TextField(
-  //                     controller: _searchCtrl,
-  //                     onChanged: _filter,
-  //                     decoration: InputDecoration(
-  //                       hintText: "ค้นหาสถานที่...",
-  //                       prefixIcon: const Icon(Icons.search),
-  //                       suffixIcon: IconButton(
-  //                         icon: const Icon(Icons.mic_none),
-  //                         onPressed: () {},
-  //                       ),
-  //                       border: OutlineInputBorder(
-  //                         borderRadius: BorderRadius.circular(16),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(height: 12),
-
-  //                 // Results
-  //                 Expanded(
-  //                   child: ListView.separated(
-  //                     controller: scrollController,
-  //                     itemCount: _results.length,
-  //                     itemBuilder: (_, i) => ListTile(
-  //                       title: Text(_results[i]),
-  //                       onTap: () {
-  //                         Navigator.pop(context, _results[i]); // ปิด popup
-  //                         // TODO: โยนค่าไปโฟกัสแผนที่/ค้นหาเส้นทางต่อได้
-  //                       },
-  //                     ),
-  //                     separatorBuilder: (_, __) =>
-  //                         const Divider(height: 1, thickness: 1),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
-  // void _filter(String q) {
-  //   setState(() {
-  //     _results = _allPlaces
-  //         .where((p) => p.toLowerCase().contains(q.toLowerCase()))
-  //         .toList();
-  //   });
-  // }
 
   // ---------------- หน้าแรก (Home Page) ----------------
   Widget _buildHomePage() {
@@ -220,8 +128,6 @@ class _HomeState extends State<Home> {
                                 );
                               }
                             }
-
-                            // รีเซ็ตสไลด์ให้พร้อมใช้รอบต่อไป
                             key.currentState?.reset();
                           },
                         );
@@ -234,17 +140,33 @@ class _HomeState extends State<Home> {
                         mainAxisSpacing: 16,
                         crossAxisSpacing: 16,
                         children: [
-                          _buildGridButton(Icons.wc, "Toilet", () {}),
+                          _buildGridButton(Icons.wc, "Toilet", () {
+                            context.read<MyMapController>().setFilter('toilet');
+                            setState(() => _selectedTab = 2);
+                          }),
                           _buildGridButton(
                             Icons.accessible,
                             "Wheelchair Ramp",
-                            () {},
+                            () {
+                              context.read<MyMapController>().setFilter('ramp');
+                              setState(() => _selectedTab = 2);
+                            },
                           ),
-                          _buildGridButton(Icons.elevator, "Elevator", () {}),
+                          _buildGridButton(Icons.elevator, "Elevator", () {
+                            context.read<MyMapController>().setFilter(
+                              'elevator',
+                            );
+                            setState(() => _selectedTab = 2);
+                          }),
                           _buildGridButton(
                             Icons.local_parking,
                             "Disabled Parking",
-                            () {},
+                            () {
+                              context.read<MyMapController>().setFilter(
+                                'PARKING',
+                              );
+                              setState(() => _selectedTab = 2);
+                            },
                           ),
                         ],
                       ),

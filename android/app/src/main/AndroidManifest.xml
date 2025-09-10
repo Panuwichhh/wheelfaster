@@ -3,6 +3,12 @@
         android:label="wheelfaster"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+               <!-- ใส่ API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBvd_tYuSo8rq-kbFlNX3AuM91wKgXm-kg"/>
+            
         <activity
             android:name=".MainActivity"
             android:exported="true"

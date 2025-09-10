@@ -20,15 +20,16 @@ class AppBottomNavigationBar extends StatelessWidget {
       items: [
         const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-
-            child: const Icon(
-              Icons.search,
-              size: 36, // 👈 ทำให้ปุ่มกลางใหญ่กว่า
-            ),
-          ),
+          icon: Icon(Icons.search),
           label: 'Search',
+          // Container(
+          //   padding: const EdgeInsets.all(8),
+          //   child: const Icon(
+          //     Icons.search,
+          // size: 40, // 👈 ทำให้ปุ่มกลางใหญ่กว่า
+          //     ),
+          //   ),
+          //   label: 'Search',
         ),
         const BottomNavigationBarItem(
           icon: Icon(Icons.map_sharp),

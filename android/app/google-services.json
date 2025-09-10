@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "952036617204",
+    "project_id": "wheelfaster-15169",
+    "storage_bucket": "wheelfaster-15169.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:952036617204:android:d2eaf5551529ddf27767a1",
+        "android_client_info": {
+          "package_name": "com.example.wheelfaster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCx6iW17ECAwQr2-GjOPyzU2dyQ7tUFVNI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
