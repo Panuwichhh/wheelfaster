@@ -43,7 +43,7 @@ class OrsService {
   }) async {
     // ต้องมี /geojson
     final url = Uri.parse(
-      'https://api.openrouteservice.org/v2/directions/wheelchair/geojson',
+      'https://api.openrouteservice.org/v2/directions/foot-walking/geojson',
     );
 
     final body = {
@@ -52,7 +52,6 @@ class OrsService {
         [to.longitude, to.latitude],
       ],
       "instructions": true,
-      // เริ่มด้วย options เบาๆ ก่อน
       "options": {
         "avoid_features": ["steps"], // เลี่ยงบันได
       },

@@ -9,6 +9,7 @@ class MyMapController extends ChangeNotifier {
   MyMapController(this._service);
 
   final PlaceAmenityService _service;
+  OrsRoute? currentRoute;
 
   // ===== Map state =====
   LatLng center = const LatLng(14.0711, 100.6031);
@@ -78,12 +79,16 @@ class MyMapController extends ChangeNotifier {
     super.dispose();
   }
 
+  bool get hasRoute => currentRoute != null && routePoints.isNotEmpty;
+  OrsRoute? get route => currentRoute;
+
   List<LatLng> routePoints = [];
   List<OrsStep> routeSteps = [];
   double routeDistance = 0; // m
   double routeDuration = 0; // s
 
   void clearRoute() {
+    currentRoute = null;
     routePoints = [];
     routeSteps = [];
     routeDistance = 0;
@@ -92,6 +97,7 @@ class MyMapController extends ChangeNotifier {
   }
 
   void setRoute(OrsRoute r) {
+    currentRoute = r;
     routePoints = r.geometry;
     routeSteps = r.steps;
     routeDistance = r.distance;

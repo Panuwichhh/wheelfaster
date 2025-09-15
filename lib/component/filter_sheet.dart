@@ -18,7 +18,7 @@ class FilterSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              "เลือกสิ่งที่ต้องการกรอง",
+              "กรุณาเลือกประเภทสถานที่",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -74,14 +74,14 @@ class FilterSheet extends StatelessWidget {
               },
             ),
             // จุดบริการ
-            ListTile(
-              leading: const Icon(Icons.support_agent),
-              title: const Text("จุดบริการ"),
-              onTap: () {
-                Navigator.pop(context);
-                onPick('service_point');
-              },
-            ),
+            // ListTile(
+            //   leading: const Icon(Icons.support_agent),
+            //   title: const Text("จุดให้บริการ"),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     onPick('service_point');
+            //   },
+            // ),
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wheelfaster/action/navigate_wheelchair.dart';
+import 'package:wheelfaster/action/routeStepsSheet.dart';
 import 'package:wheelfaster/component/filter_sheet.dart';
 import 'package:wheelfaster/component/marker.dart';
 import 'package:wheelfaster/component/place_sheet.dart';
@@ -163,9 +164,9 @@ class _AllMapState extends State<AllMap> {
                               'https://img.freepik.com/free-vector/toilet-bowl-bathroom-with-paper-roll-brush_107791-664.jpg?w=740',
                               'https://img.freepik.com/free-vector/toilet-bowl-bathroom-with-paper-roll-brush_107791-664.jpg?w=740',
                             ],
-                            toilets: 2,
-                            elevators: 1,
-                            parkings: 10,
+                            // toilets: 2,
+                            // elevators: 1,
+                            // parkings: 10,
                             onNavigate: () {
                               navigateToPlaceWheelchair(
                                 context,
@@ -226,16 +227,23 @@ class _AllMapState extends State<AllMap> {
                 ),
 
                 const SizedBox(height: 16),
-
                 // ปุ่มหยุดเดินทาง (แสดงเมื่อมีเส้นทาง)
                 if (c.routePoints.isNotEmpty)
                   FloatingActionButton(
-                    backgroundColor: Colors.red,
+                    backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                     onPressed: () {
-                      context.read<MyMapController>().clearRoute();
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) =>
+                            const RouteStepsSheet(), // <-- เรียกใช้ widget ที่เราแยกไว้
+                      );
                     },
-                    child: const Icon(Icons.close, color: Colors.white),
-                    tooltip: 'หยุดเดินทาง',
+                    child: const Icon(
+                      Icons.list,
+                      color: Color.fromARGB(255, 0, 0, 0),
+                    ),
+                    tooltip: 'ดูเส้นทางนำทาง',
                   ),
               ],
             ),

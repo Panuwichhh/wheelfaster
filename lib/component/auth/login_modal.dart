@@ -102,7 +102,7 @@ class _LoginModalState extends State<LoginModal> {
 
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: Colors.white,
       contentPadding: const EdgeInsets.all(0),
       content: Container(
         padding: const EdgeInsets.all(24),
