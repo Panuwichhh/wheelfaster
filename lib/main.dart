@@ -4,13 +4,18 @@ import 'package:wheelfaster/controllers/map_controller.dart';
 import 'package:wheelfaster/pages/home.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
+import 'firebase_options.dart';
 import 'package:wheelfaster/services/place_amenity_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
+   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+ 
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(
     ChangeNotifierProvider(
@@ -34,6 +39,7 @@ class Myapp extends StatelessWidget {
     return MaterialApp(
       title: "My title",
       theme: ThemeData(textTheme: textTheme),
+      debugShowCheckedModeBanner: false,
       home: Scaffold(body: Home()),
       // routes: {'/mappage': (context) => (MapPage())},
     );
