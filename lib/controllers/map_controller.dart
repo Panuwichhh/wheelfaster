@@ -17,12 +17,24 @@ class MyMapController extends ChangeNotifier {
   String _mapType = 'openstreet';
   String get mapType => _mapType;
 
-  String get tileUrl => _mapType == 'openstreet'
-      ? 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png'
-      : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+  String get tileUrl {
+    switch (_mapType) {
+      case 'openstreet':
+        return 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png';
 
-  void toggleMapType() {
-    _mapType = _mapType == 'openstreet' ? 'satellite' : 'openstreet';
+      case 'satellite':
+        return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
+      case 'light':
+        return 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}{r}.png';
+
+      default:
+        return 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png';
+    }
+  }
+
+  void setMapType(String type) {
+    _mapType = type;
     notifyListeners();
   }
 

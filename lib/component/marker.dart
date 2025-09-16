@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LabelMarker extends StatelessWidget {
-  final Widget icon;
-  final Color circleColor;
-  final String title;
+  final Widget icon; // ไอคอนที่จะใส่ในหมุด
+  final Color circleColor; // ใช้เป็นสีของหมุดทั้งอัน
+  final String title; // เก็บไว้ (ถ้าอยากใช้ label ด้านล่าง)
   final VoidCallback? onTap;
+  final double size; // ขนาด marker (ค่าเริ่มต้น 56)
 
   const LabelMarker({
     super.key,
@@ -12,60 +14,48 @@ class LabelMarker extends StatelessWidget {
     required this.title,
     required this.circleColor,
     this.onTap,
+    this.size = 70,
   });
 
   @override
   Widget build(BuildContext context) {
+    final double iconSize = size * 0.4;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(size / 2),
         onTap: onTap,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ===== วงกลมด้านบน =====
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: circleColor,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Center(child: icon),
-            ),
-            const SizedBox(height: 6),
-
-            // ===== กล่องข้อความด้านล่าง =====
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: Colors.black87,
+            // ===== หมุดทึบ + icon ด้านใน =====
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  FontAwesomeIcons.locationPin,
+                  size: size,
+                  color: circleColor, // ใช้ circleColor เป็นสีหมุด
                 ),
-              ),
+                SizedBox(
+                  width: iconSize,
+                  height: iconSize,
+                  child: FittedBox(child: icon),
+                ),
+              ],
             ),
+
+            // ===== ถ้าอยากใช้ title =====
+            // const SizedBox(height: 4),
+            // Text(
+            //   title,
+            //   style: const TextStyle(
+            //     fontSize: 12,
+            //     fontWeight: FontWeight.w500,
+            //     color: Colors.black87,
+            //   ),
+            // ),
           ],
         ),
       ),

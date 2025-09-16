@@ -1,7 +1,6 @@
 // lib/component/place_sheet.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:wheelfaster/action/navigate_wheelchair.dart';
 import 'package:wheelfaster/component/auth/login_modal.dart';
 import 'package:wheelfaster/component/reviews.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -73,7 +72,7 @@ class PlaceSheet extends StatelessWidget {
                 leading: const Icon(
                   Icons.location_on,
                   color: Colors.black,
-                  size: 24,
+                  size: 32,
                 ),
                 title: Text(
                   title,
@@ -163,10 +162,7 @@ class PlaceSheet extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            "1st floor",
-                            style: TextStyle(fontSize: 24),
-                          ),
+                          const Text("###", style: TextStyle(fontSize: 24)),
                           Row(
                             children: [
                               if (user != null)

@@ -23,8 +23,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.read<MyMapController>();
-
     return Scaffold(
       backgroundColor: const Color(0xFF01CE55),
       body: IndexedStack(

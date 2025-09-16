@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:wheelfaster/action/navigate_wheelchair.dart';
 import 'package:wheelfaster/action/routeStepsSheet.dart';
 import 'package:wheelfaster/component/filter_sheet.dart';
+import 'package:wheelfaster/component/map_type_sheet.dart';
 import 'package:wheelfaster/component/marker.dart';
 import 'package:wheelfaster/component/place_sheet.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -50,8 +51,8 @@ class _AllMapState extends State<AllMap> {
         options: MapOptions(
           initialCenter: LatLng(14.0711, 100.6041),
           initialZoom: 16,
-          minZoom: 14,
-          maxZoom: 18,
+          // minZoom: 14,
+          // maxZoom: 18,
           interactionOptions: const InteractionOptions(
             flags: InteractiveFlag.all, // เปิดให้ซูม/แพน/หมุนได้
           ),
@@ -161,8 +162,8 @@ class _AllMapState extends State<AllMap> {
                             placeRef: placeRef,
                             description: placeDesc,
                             images: const [
-                              'https://img.freepik.com/free-vector/toilet-bowl-bathroom-with-paper-roll-brush_107791-664.jpg?w=740',
-                              'https://img.freepik.com/free-vector/toilet-bowl-bathroom-with-paper-roll-brush_107791-664.jpg?w=740',
+                              'https://preview.redd.it/68birnfq82701.png?width=320&crop=smart&auto=webp&s=0aabfe14ddd96ab5c511a2f4804c4353e5099b0f',
+                              'https://preview.redd.it/68birnfq82701.png?width=320&crop=smart&auto=webp&s=0aabfe14ddd96ab5c511a2f4804c4353e5099b0f',
                             ],
                             // toilets: 2,
                             // elevators: 1,
@@ -219,13 +220,18 @@ class _AllMapState extends State<AllMap> {
                 // ปุ่มสลับ Map Type
                 FloatingActionButton(
                   backgroundColor: Colors.white,
-                  onPressed: c.toggleMapType,
-                  child: Icon(
-                    mapType == 'openstreet' ? Icons.satellite_alt : Icons.map,
-                    color: Colors.black,
-                  ),
-                ),
+                  child: const Icon(Icons.layers, color: Colors.black),
+                  onPressed: () async {
+                    final chosen = await showMapTypeSheet(
+                      context: context,
+                      current: mapType,
+                      onSelected: c.setMapType, // อัปเดตทันทีเมื่อแตะรายการ
+                    );
 
+                    // ถ้าอยากอัปเดตเฉพาะตอนปิด sheet ก็ทำแบบนี้แทน:
+                    // if (chosen != null) c.setMapType(chosen);
+                  },
+                ),
                 const SizedBox(height: 16),
                 // ปุ่มหยุดเดินทาง (แสดงเมื่อมีเส้นทาง)
                 if (c.routePoints.isNotEmpty)
@@ -256,9 +262,9 @@ class _AllMapState extends State<AllMap> {
                   strokeWidth: 6,
                   color: const Color.fromARGB(
                     255,
-                    37,
+                    29,
+                    108,
                     255,
-                    121,
                   ), // เปลี่ยนสีตรงนี้
                 ),
               ],
