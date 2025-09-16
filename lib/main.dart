@@ -1,7 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:wheelfaster/controllers/map_controller.dart';
-import 'package:wheelfaster/pages/home.dart';
+import 'package:wheelfaster/notifier/notifier.dart';
+import 'package:wheelfaster/pages/app.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -36,12 +37,22 @@ class Myapp extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextTheme textTheme = GoogleFonts.kanitTextTheme();
 
-    return MaterialApp(
-      title: "My title",
-      theme: ThemeData(textTheme: textTheme),
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(body: Home()),
-      // routes: {'/mappage': (context) => (MapPage())},
+    return ValueListenableBuilder(
+      valueListenable: isDarkModeNotifier,
+      builder: (context, isDarkMode, child) {
+        return MaterialApp(
+          title: "My title",
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Color(0xFF01CE55),
+              brightness: isDarkMode? Brightness.dark : Brightness.light)
+          ),
+          debugShowCheckedModeBanner: false,
+          home: Scaffold(body: Home()),
+          // routes: {'/mappage': (context) => (MapPage())},
+        );
+      }
     );
   }
 }
+

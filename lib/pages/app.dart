@@ -3,6 +3,7 @@ import 'package:slide_to_act/slide_to_act.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wheelfaster/controllers/map_controller.dart';
+import 'package:wheelfaster/notifier/notifier.dart';
 import 'package:wheelfaster/pages/map.dart';
 import 'package:wheelfaster/component/bottom_nav.dart';
 
@@ -23,28 +24,30 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF01CE55),
-      body: IndexedStack(
-        index: _selectedTab,
-        children: [
-          _buildHomePage(), // 0
-          const SizedBox(), // 1
-          AllMap(), // 2  (เอา const ออก เพื่อให้ build ใหม่ได้ชัวร์)
-        ],
-      ),
-      bottomNavigationBar: AppBottomNavigationBar(
-        selectedIndex: _selectedTab,
-        onTap: (index) async {
-          if (index == 1) {
-            setState(() => _selectedTab = 2);
-          } else {
-            setState(() => _selectedTab = index);
-          }
-        },
-      ),
-    );
-  }
+  final scheme = Theme.of(context).colorScheme;
+
+  return Scaffold(
+    backgroundColor: Color(0xFF01CE55), 
+    body: IndexedStack(
+      index: _selectedTab,
+      children: [
+        _buildHomePage(),
+        const SizedBox(),
+        AllMap(),
+      ],
+    ),
+    bottomNavigationBar: AppBottomNavigationBar(
+      selectedIndex: _selectedTab,
+      onTap: (index) async {
+        if (index == 1) {
+          setState(() => _selectedTab = 2);
+        } else {
+          setState(() => _selectedTab = index);
+        }
+      },
+    ),
+  );
+}
 
   // ---------------- หน้าแรก (Home Page) ----------------
   Widget _buildHomePage() {
@@ -55,6 +58,19 @@ class _HomeState extends State<Home> {
           children: [
             // Logo
             const SizedBox(height: 20),
+           IconButton(
+              onPressed: () {
+                isDarkModeNotifier.value = !isDarkModeNotifier.value;
+              },
+              icon: ValueListenableBuilder<bool>(
+                valueListenable: isDarkModeNotifier,
+                builder: (BuildContext context, bool isDarkMode, Widget? child) {
+                  return Icon(
+                    isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                  );
+                },
+              ),
+            ),
             Center(
               child: Column(
                 children: const [
@@ -79,8 +95,8 @@ class _HomeState extends State<Home> {
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -180,30 +196,38 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildGridButton(IconData icon, String label, VoidCallback onTap) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.green,
-        side: const BorderSide(color: Color(0xFF01CE55), width: 1),
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      onPressed: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40, color: Colors.black),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+  return Builder(
+    builder: (context) {
+      final scheme = Theme.of(context).colorScheme;
+
+      return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: scheme.surface, 
+          foregroundColor: scheme.onPrimary,
+          side: BorderSide(color: scheme.primary, width: 1),
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        onPressed: onTap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: scheme.onSurface), // ใช้ onSurface
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: scheme.onSurface, // ตัวอักษรเปลี่ยนตาม theme
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+ }
 }
