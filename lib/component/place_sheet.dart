@@ -8,7 +8,7 @@ import 'package:wheelfaster/component/reviews_list.dart';
 
 class PlaceSheet extends StatelessWidget {
   final String title;
-  final DocumentReference<Map<String, dynamic>> placeRef; // ✅ ระบุ generic
+  final DocumentReference<Map<String, dynamic>> placeRef; 
   final String description;
   final List<String> images;
   final int? toilets;
@@ -20,7 +20,7 @@ class PlaceSheet extends StatelessWidget {
   const PlaceSheet({
     super.key,
     required this.title,
-    required this.placeRef, // ✅ ใช้ตัวนี้ต่อให้ทั่วไฟล์
+    required this.placeRef, 
     required this.description,
     this.images = const [],
     this.toilets,
@@ -322,7 +322,7 @@ Future<void> showPlaceSheet(
     backgroundColor: Colors.transparent,
     builder: (_) => PlaceSheet(
       title: title,
-      placeRef: placeRef, // ✅ ชนิดตรง
+      placeRef: placeRef, // ชนิดตรง
       description: description,
       images: images,
       toilets: toilets,

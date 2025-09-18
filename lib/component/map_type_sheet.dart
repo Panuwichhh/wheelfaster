@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wheelfaster/notifier/notifier.dart';
+import 'package:wheelfaster/extension.dart';
 
 typedef MapTypeValue = String;
 
@@ -15,8 +17,8 @@ Future<MapTypeValue?> showMapTypeSheet({
     required String label,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Colors.black),
-      title: Text(label, style: const TextStyle(color: Colors.black)),
+      leading: Icon(icon, color: context.pureOnText),
+      title: Text(label, style: TextStyle(color: context.pureOnText)),
 
       // leading: Icon(
       //   icon,
@@ -45,37 +47,44 @@ Future<MapTypeValue?> showMapTypeSheet({
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
     builder: (_) {
-      return SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 4),
-              const Text(
-                "เลือกประเภทแผนที่",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      return ValueListenableBuilder(
+        valueListenable: isDarkModeNotifier,
+        builder: (context, isDarkMode, child) {
+          return SafeArea(
+            
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 4),
+                  const Text(
+                    "เลือกประเภทแผนที่",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  tile(
+                    value: 'openstreet',
+                    icon: Icons.map,
+                    label: 'OpenStreetMap',
+                    
+                  ),
+                  tile(
+                    value: 'satellite',
+                    icon: Icons.satellite_alt,
+                    label: 'Satellite (Esri)',
+                  ),
+                  tile(
+                    value: 'light',
+                    icon: Icons.wb_sunny,
+                    label: 'Light (Carto)',
+                  ),
+                  const SizedBox(height: 8),
+                ],
               ),
-              const SizedBox(height: 16),
-              tile(
-                value: 'openstreet',
-                icon: Icons.map,
-                label: 'OpenStreetMap',
-              ),
-              tile(
-                value: 'satellite',
-                icon: Icons.satellite_alt,
-                label: 'Satellite (Esri)',
-              ),
-              tile(
-                value: 'light',
-                icon: Icons.wb_sunny,
-                label: 'Light (Carto)',
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
+            ),
+          );
+        }
       );
     },
   );
