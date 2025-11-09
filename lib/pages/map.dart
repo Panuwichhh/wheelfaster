@@ -27,9 +27,19 @@ class _AllMapState extends State<AllMap> {
     final c = context.watch<MyMapController>();
     final selectedType = c.selectedTypeKey; // ใช้ค่าจาก controller
     final col = FirebaseFirestore.instance.collection('place_amenities');
+    final placeCol = FirebaseFirestore.instance.collection('places');
+
+    // แสดงทั้งหมดจาก place_amenities
     if (selectedType == 'ALL') {
       return col.snapshots();
     }
+
+    // ถ้าเลือกเป็น PLACES ให้ดึงจาก collection 'places'
+    if (selectedType == 'PLACES') {
+      return placeCol.snapshots();
+    }
+
+    // กรณีเป็น amenity type อื่นๆ ให้กรองจาก field 'type' ใน place_amenities
     final typeRef = FirebaseFirestore.instance.doc(
       'amenity_types/${selectedType.toUpperCase()}',
     );
@@ -51,8 +61,8 @@ class _AllMapState extends State<AllMap> {
         options: MapOptions(
           initialCenter: LatLng(14.0711, 100.6041),
           initialZoom: 16,
-          // minZoom: 14,
-          // maxZoom: 18,
+          minZoom: 14,
+          maxZoom: 18,
           interactionOptions: const InteractionOptions(
             flags: InteractiveFlag.all, // เปิดให้ซูม/แพน/หมุนได้
           ),
@@ -98,16 +108,21 @@ class _AllMapState extends State<AllMap> {
 
                   // Debug Type Ref
                   final typeRef = data['type'];
-                  print("Type Ref: $typeRef");
+                  //print("Type Ref: $typeRef");
                   final String typeId = (typeRef is DocumentReference)
                       ? typeRef.id
                       : 'UNKNOWN';
-                  print(" Type ID: $typeId");
+                  // print(" Type ID: $typeId");
 
                   final key = typeId.trim().toUpperCase();
+                  final selectedType = c.selectedTypeKey;
                   final placeRef = FirebaseFirestore.instance
-                      .collection('place_amenities')
+                      .collection(
+                        selectedType == 'PLACES' ? 'places' : 'place_amenities',
+                      )
                       .doc(doc.id);
+
+                  print("Place Ref: ${placeRef.path} $selectedType");
 
                   final placeName = data['name'] ?? 'ไม่มีชื่อ';
                   final placeDesc = data['description'] ?? '';
@@ -132,13 +147,16 @@ class _AllMapState extends State<AllMap> {
                   };
                   final selectedConfig =
                       typeConfig[key] ??
-                      {'color': Colors.grey, 'icon': Icons.location_on};
+                      {
+                        'color': const Color.fromARGB(255, 177, 177, 177),
+                        'icon': Icons.location_city,
+                      };
 
                   return Marker(
                     point: LatLng(lat, lng),
                     width: 100,
                     height: 100,
-                    alignment: Alignment.topCenter,
+                    alignment: Alignment.center,
                     child: TweenAnimationBuilder<double>(
                       tween: Tween(begin: 0.0, end: 1.0),
                       duration: const Duration(milliseconds: 800),
@@ -156,23 +174,43 @@ class _AllMapState extends State<AllMap> {
                       },
                       child: BouncyOnTap(
                         onTap: () {
+                          // อ่านค่าจาก doc.data() แล้วส่งให้ showPlaceSheet
+                          final rawImages = data['images'];
+                          final images = (rawImages is List)
+                              ? rawImages
+                                    .where((e) => e != null)
+                                    .map((e) => e.toString())
+                                    .toList()
+                              : <String>[];
+
+                          final toilets = (data['toilets'] is num)
+                              ? (data['toilets'] as num).toInt()
+                              : null;
+                          final elevators = (data['elevators'] is num)
+                              ? (data['elevators'] as num).toInt()
+                              : null;
+                          final parkings = (data['parkings'] is num)
+                              ? (data['parkings'] as num).toInt()
+                              : null;
+
+                          final name = data['name']?.toString() ?? placeName;
+                          final desc =
+                              data['description']?.toString() ?? placeDesc;
+
                           showPlaceSheet(
                             context,
-                            title: placeName,
+                            title: name,
                             placeRef: placeRef,
-                            description: placeDesc,
-                            images: const [
-                              'https://preview.redd.it/68birnfq82701.png?width=320&crop=smart&auto=webp&s=0aabfe14ddd96ab5c511a2f4804c4353e5099b0f',
-                              'https://preview.redd.it/68birnfq82701.png?width=320&crop=smart&auto=webp&s=0aabfe14ddd96ab5c511a2f4804c4353e5099b0f',
-                            ],
-                            // toilets: 2,
-                            // elevators: 1,
-                            // parkings: 10,
+                            description: desc,
+                            images: images,
+                            toilets: toilets,
+                            elevators: elevators,
+                            parkings: parkings,
                             onNavigate: () {
                               navigateToPlaceWheelchair(
                                 context,
                                 placeRef: placeRef,
-                                orsApiKey: orsApiKey, // ส่ง API key ตรงนี้
+                                orsApiKey: orsApiKey,
                                 showStepsSheet: true,
                               );
                             },
@@ -232,6 +270,7 @@ class _AllMapState extends State<AllMap> {
                     // if (chosen != null) c.setMapType(chosen);
                   },
                 ),
+
                 const SizedBox(height: 16),
                 // ปุ่มหยุดเดินทาง (แสดงเมื่อมีเส้นทาง)
                 if (c.routePoints.isNotEmpty)

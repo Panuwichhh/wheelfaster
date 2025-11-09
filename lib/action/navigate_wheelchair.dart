@@ -1,7 +1,7 @@
 // lib/actions/navigate_wheelchair.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-// import 'package:geolocator/geolocator.dart';
+import 'package:geolocator/geolocator.dart'; // NEW
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -11,30 +11,40 @@ import '../services/ors_service.dart';
 Future<void> navigateToPlaceWheelchair(
   BuildContext context, {
   required DocumentReference<Map<String, dynamic>> placeRef,
-  required String orsApiKey, // << ใส่คีย์ ORS ตรงนี้
-  bool showStepsSheet = true, // << จะโชว์ step bottom sheet ไหม
+  required String orsApiKey,
+  bool showStepsSheet = true,
 }) async {
   try {
-    // 1) เช็คสิทธิ์ตำแหน่ง
-    // LocationPermission perm = await Geolocator.checkPermission();
-    // if (perm == LocationPermission.denied ||
-    //     perm == LocationPermission.deniedForever) {
-    //   perm = await Geolocator.requestPermission();
-    //   if (perm == LocationPermission.denied ||
-    //       perm == LocationPermission.deniedForever) {
-    //     throw Exception('ต้องอนุญาตสิทธิ์ตำแหน่งก่อน');
-    //   }
-    // }
+    // 1) ตรวจว่า location service เปิดอยู่หรือไม่
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled(); // NEW
+    if (!serviceEnabled) {
+      throw Exception('กรุณาเปิด Location (GPS) ก่อนใช้งาน');
+    }
 
-    // 2) ตำแหน่งผู้ใช้ปัจจุบัน
-    // final pos = await Geolocator.getCurrentPosition();
-    // final from = LatLng(pos.latitude, pos.longitude);
-    final from = LatLng(14.07192845223585, 100.59834886409122);
+    // 2) ขอสิทธิ์ตำแหน่ง (runtime permission)
+    LocationPermission perm = await Geolocator.checkPermission(); // NEW
+    if (perm == LocationPermission.denied) {
+      perm = await Geolocator.requestPermission();
+    }
+    if (perm == LocationPermission.denied) {
+      throw Exception('ต้องอนุญาตสิทธิ์ตำแหน่งก่อน');
+    }
+    if (perm == LocationPermission.deniedForever) {
+      throw Exception('สิทธิ์ตำแหน่งถูกปฏิเสธถาวร กรุณาไปเปิดใน Settings');
+    }
 
-    // 3) อ่านพิกัดปลายทางจาก placeRef
+    // 3) ตำแหน่งผู้ใช้ปัจจุบัน (ใช้ความแม่นยำสำหรับการนำทาง + กันค้างด้วย timeLimit)
+    final pos = await Geolocator.getCurrentPosition(
+      // NEW
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+      timeLimit: const Duration(seconds: 10),
+    );
+    final from = LatLng(pos.latitude, pos.longitude); // NEW
+
+    // 4) อ่านพิกัดปลายทางจาก placeRef
     final to = await _getLatLngFromPlaceRef(placeRef);
 
-    // 4) เรียก ORS wheelchair
+    // 5) เรียก ORS wheelchair
     final ors = OrsService(orsApiKey);
     final route = await ors.wheelchairRoute(from: from, to: to);
 
@@ -42,24 +52,23 @@ Future<void> navigateToPlaceWheelchair(
       throw Exception('ไม่พบเส้นทางที่เหมาะสมในพื้นที่นี้');
     }
 
-    print('from: $from, to: $to');
-    print('route geometry: ${route.geometry}');
-
-    // 5) อัปเดต controller ให้แผนที่วาดเส้นทาง
+    // 6) อัปเดต controller ให้แผนที่วาดเส้นทาง
     final ctrl = context.read<MyMapController>();
     ctrl.setRoute(route);
 
-    // 6) (ออปชัน) เปิด steps sheet
+    // แพนกล้องไปที่จุดเริ่มต้นเล็กน้อย (ถ้ามีเมธอดให้ทำ)
+    // ctrl.moveCameraTo(from); // <-- ถ้ามีเมธอดใน controller
+
+    // 7) (ออปชัน) เปิด steps sheet
     if (showStepsSheet && context.mounted) {
       showModalBottomSheet(
         context: context,
         builder: (_) => _RouteStepsSheet(
           route: route,
           onStopNavigation: () {
-            // ลบเส้นทางออกจากแผนที่
             final ctrl = context.read<MyMapController>();
             ctrl.clearRoute();
-            Navigator.pop(context); // ปิดแผ่นคำสั่ง
+            Navigator.pop(context);
           },
         ),
       );
@@ -76,26 +85,44 @@ Future<void> navigateToPlaceWheelchair(
 Future<LatLng> _getLatLngFromPlaceRef(
   DocumentReference<Map<String, dynamic>> placeRef,
 ) async {
+  print("Fetching document from: ${placeRef.path}");
   final snap = await placeRef.get();
+
+  if (!snap.exists) {
+    print("Document does not exist!");
+    throw Exception('ไม่พบเอกสารที่ placeRef');
+  }
+
   final data = snap.data() ?? {};
+  print("Document data: $data");
+
   final loc = data['location'];
-  // กรณีเก็บเป็น GeoPoint
+  print("Location field: $loc (type: ${loc?.runtimeType})");
+
+  // Check GeoPoint
   if (loc is GeoPoint) {
+    print("Found GeoPoint: ${loc.latitude}, ${loc.longitude}");
     return LatLng(loc.latitude, loc.longitude);
   }
-  // กรณีเก็บเป็น [lat, lng]
+
+  // Check List
   if (loc is List && loc.length >= 2) {
     final lat = (loc[0] as num).toDouble();
     final lng = (loc[1] as num).toDouble();
+    print("Found List: $lat, $lng");
     return LatLng(lat, lng);
   }
-  // กรณีเก็บเป็น map: {'lat': x, 'lng': y}
+
+  // Check Map
   if (loc is Map) {
     final lat = (loc['lat'] as num?)?.toDouble();
     final lng = (loc['lng'] as num?)?.toDouble();
+    print("Found Map: lat=$lat, lng=$lng");
     if (lat != null && lng != null) return LatLng(lat, lng);
   }
-  throw Exception('ไม่พบพิกัดปลายทางใน placeRef');
+
+  print("Could not parse location data!");
+  throw Exception('ไม่พบพิกัดปลายทางใน placeRef (format ไม่ถูกต้อง)');
 }
 
 /// ===== UI: แผ่นคำสั่งเลี้ยว (steps) =====

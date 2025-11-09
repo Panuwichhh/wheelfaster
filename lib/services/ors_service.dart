@@ -43,7 +43,7 @@ class OrsService {
   }) async {
     // ต้องมี /geojson
     final url = Uri.parse(
-      'https://api.openrouteservice.org/v2/directions/foot-walking/geojson',
+      'https://api.openrouteservice.org/v2/directions/wheelchair/geojson',
     );
 
     final body = {

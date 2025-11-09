@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wheelfaster/component/search_.dart'; // Add this import
 
 class AppBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
@@ -14,27 +15,20 @@ class AppBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: selectedIndex,
-      onTap: onTap,
+      onTap: (index) {
+        if (index == 1) {
+          // Show search sheet when Search tab is tapped
+          showSearchSheet(context);
+        } else {
+          onTap(index);
+        }
+      },
       type: BottomNavigationBarType.fixed,
       selectedItemColor: const Color(0xFF01CE55),
-      items: [
-        const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Search',
-          // Container(
-          //   padding: const EdgeInsets.all(8),
-          //   child: const Icon(
-          //     Icons.search,
-          // size: 40, // 👈 ทำให้ปุ่มกลางใหญ่กว่า
-          //     ),
-          //   ),
-          //   label: 'Search',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.map_sharp),
-          label: 'Map',
-        ),
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+        BottomNavigationBarItem(icon: Icon(Icons.map_sharp), label: 'Map'),
       ],
     );
   }

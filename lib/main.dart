@@ -35,7 +35,6 @@ class Myapp extends StatelessWidget {
       title: "My title",
       theme: ThemeData(textTheme: textTheme),
       home: Scaffold(body: Home()),
-      // routes: {'/mappage': (context) => (MapPage())},
     );
   }
 }

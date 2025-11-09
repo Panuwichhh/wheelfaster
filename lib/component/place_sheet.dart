@@ -156,6 +156,13 @@ class PlaceSheet extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                     ],
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                      ),
+                    ),
 
                     // Action row (navigate + review)
                     if (onReview != null || onNavigate != null)

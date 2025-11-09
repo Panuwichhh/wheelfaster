@@ -82,6 +82,14 @@ class FilterSheet extends StatelessWidget {
             //     onPick('service_point');
             //   },
             // ),
+            ListTile(
+              leading: const Icon(Icons.location_city),
+              title: const Text("สถานที่"),
+              onTap: () {
+                Navigator.pop(context);
+                onPick('places');
+              },
+            ),
           ],
         ),
       ),
