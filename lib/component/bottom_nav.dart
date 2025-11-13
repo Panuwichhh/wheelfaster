@@ -17,7 +17,7 @@ class AppBottomNavigationBar extends StatelessWidget {
       currentIndex: selectedIndex,
       onTap: (index) {
         if (index == 1) {
-          // Show search sheet when Search tab is tapped
+          onTap(2);
           showSearchSheet(context);
         } else {
           onTap(index);
@@ -28,7 +28,7 @@ class AppBottomNavigationBar extends StatelessWidget {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        BottomNavigationBarItem(icon: Icon(Icons.map_sharp), label: 'Map'),
+        BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
       ],
     );
   }

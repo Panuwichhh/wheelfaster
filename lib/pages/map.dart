@@ -22,6 +22,7 @@ class AllMap extends StatefulWidget {
 
 class _AllMapState extends State<AllMap> {
   final String orsApiKey = dotenv.env['ORS_API_KEY'] ?? '';
+  late MapController _flutterMapController;
 
   Stream<QuerySnapshot> _placesStream() {
     final c = context.watch<MyMapController>();
@@ -49,6 +50,8 @@ class _AllMapState extends State<AllMap> {
   @override
   void initState() {
     super.initState();
+    _flutterMapController = MapController();
+    context.read<MyMapController>().setMapController(_flutterMapController);
   }
 
   @override
@@ -58,6 +61,7 @@ class _AllMapState extends State<AllMap> {
     final mapType = c.mapType;
     return Scaffold(
       body: FlutterMap(
+        mapController: _flutterMapController,
         options: MapOptions(
           initialCenter: LatLng(14.0711, 100.6041),
           initialZoom: 16,
@@ -85,10 +89,7 @@ class _AllMapState extends State<AllMap> {
               }
 
               // Debug
-              print("Docs count: ${snapshot.data!.docs.length}");
-              for (var doc in snapshot.data!.docs) {
-                print("Doc ID: ${doc.id}, Data: ${doc.data()}");
-              }
+
               if (snapshot.data!.docs.isEmpty) {
                 return const Center(child: Text("No data found"));
               }
@@ -141,14 +142,14 @@ class _AllMapState extends State<AllMap> {
                       'icon': Icons.elevator,
                     },
                     'RAMP': {
-                      'color': Colors.purple,
+                      'color': const Color.fromRGBO(156, 39, 176, 1),
                       'icon': Icons.accessible_forward,
                     },
                   };
                   final selectedConfig =
                       typeConfig[key] ??
                       {
-                        'color': const Color.fromARGB(255, 177, 177, 177),
+                        'color': const Color.fromARGB(255, 0, 0, 0),
                         'icon': Icons.location_city,
                       };
 
@@ -174,14 +175,35 @@ class _AllMapState extends State<AllMap> {
                       },
                       child: BouncyOnTap(
                         onTap: () {
-                          // อ่านค่าจาก doc.data() แล้วส่งให้ showPlaceSheet
+                          // อ่าน rawImages ที่อาจจะเป็น String (url เดี่ยว), List หรือ Map
                           final rawImages = data['images'];
-                          final images = (rawImages is List)
-                              ? rawImages
-                                    .where((e) => e != null)
-                                    .map((e) => e.toString())
-                                    .toList()
-                              : <String>[];
+
+                          // Normalize เป็น List<String>
+                          final images = <String>[];
+                          if (rawImages == null) {
+                            // keep empty
+                          } else if (rawImages is String) {
+                            if (rawImages.startsWith('http'))
+                              images.add(rawImages);
+                          } else if (rawImages is List) {
+                            for (final e in rawImages) {
+                              if (e == null) continue;
+                              if (e is String && e.startsWith('http')) {
+                                images.add(e);
+                              } else if (e is Map &&
+                                  (e['url'] != null || e['src'] != null)) {
+                                final url = (e['url'] ?? e['src']).toString();
+                                if (url.startsWith('http')) images.add(url);
+                              }
+                            }
+                          } else if (rawImages is Map) {
+                            final url = (rawImages['url'] ?? rawImages['src'])
+                                ?.toString();
+                            if (url != null && url.startsWith('http'))
+                              images.add(url);
+                          }
+
+                          debugPrint('Normalized images: $images');
 
                           final toilets = (data['toilets'] is num)
                               ? (data['toilets'] as num).toInt()
@@ -197,6 +219,15 @@ class _AllMapState extends State<AllMap> {
                           final desc =
                               data['description']?.toString() ?? placeDesc;
 
+                          final floorData = data['floor'];
+                          final String? floor = (floorData is String)
+                              ? floorData
+                              : null;
+
+                          final rawAmenityRefs = data['place_amenities'];
+                          final List<dynamic>? amenityRefs =
+                              (rawAmenityRefs is List) ? rawAmenityRefs : null;
+
                           showPlaceSheet(
                             context,
                             title: name,
@@ -206,7 +237,10 @@ class _AllMapState extends State<AllMap> {
                             toilets: toilets,
                             elevators: elevators,
                             parkings: parkings,
+                            floor: floor,
+                            amenityRefs: amenityRefs,
                             onNavigate: () {
+                              Navigator.pop(context);
                               navigateToPlaceWheelchair(
                                 context,
                                 placeRef: placeRef,
@@ -222,7 +256,9 @@ class _AllMapState extends State<AllMap> {
                           icon: Icon(
                             selectedConfig['icon'],
                             size: 28,
-                            color: Colors.black87,
+                            color: selectedConfig['icon'] == Icons.location_city
+                                ? Colors.white
+                                : Colors.black,
                           ),
                           title: placeName,
                         ),
@@ -275,7 +311,7 @@ class _AllMapState extends State<AllMap> {
                 // ปุ่มหยุดเดินทาง (แสดงเมื่อมีเส้นทาง)
                 if (c.routePoints.isNotEmpty)
                   FloatingActionButton(
-                    backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                    backgroundColor: const Color.fromARGB(255, 0, 190, 57),
                     onPressed: () {
                       showModalBottomSheet(
                         context: context,
@@ -286,7 +322,7 @@ class _AllMapState extends State<AllMap> {
                     },
                     child: const Icon(
                       Icons.list,
-                      color: Color.fromARGB(255, 0, 0, 0),
+                      color: Color.fromARGB(255, 255, 255, 255),
                     ),
                     tooltip: 'ดูเส้นทางนำทาง',
                   ),

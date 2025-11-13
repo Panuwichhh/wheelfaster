@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wheelfaster/models/place_amenity.dart';
 import 'package:wheelfaster/services/ors_service.dart';
@@ -10,6 +11,24 @@ class MyMapController extends ChangeNotifier {
 
   final PlaceAmenityService _service;
   OrsRoute? currentRoute;
+
+  // ===== Map Controller =====
+  MapController? _mapController;
+
+  void setMapController(MapController controller) {
+    _mapController = controller;
+    notifyListeners();
+  }
+
+  // ===== Animated Map Move =====
+  void simpleMove(LatLng destLocation, double destZoom) {
+    if (_mapController == null) {
+      debugPrint('MapController not initialized');
+      return;
+    }
+    // สั่งให้ .move (ย้าย) ทันที
+    _mapController!.move(destLocation, destZoom);
+  }
 
   // ===== Map state =====
   LatLng center = const LatLng(14.0711, 100.6031);
