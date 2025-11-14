@@ -27,14 +27,25 @@ class AllMap extends StatefulWidget {
 
 class _AllMapState extends State<AllMap> {
   final String orsApiKey = dotenv.env['ORS_API_KEY'] ?? '';
+  late MapController _flutterMapController;
 
   Stream<QuerySnapshot> _placesStream() {
     final c = context.watch<MyMapController>();
     final selectedType = c.selectedTypeKey; // ใช้ค่าจาก controller
     final col = FirebaseFirestore.instance.collection('place_amenities');
+    final placeCol = FirebaseFirestore.instance.collection('places');
+
+    // แสดงทั้งหมดจาก place_amenities
     if (selectedType == 'ALL') {
       return col.snapshots();
     }
+
+    // ถ้าเลือกเป็น PLACES ให้ดึงจาก collection 'places'
+    if (selectedType == 'PLACES') {
+      return placeCol.snapshots();
+    }
+
+    // กรณีเป็น amenity type อื่นๆ ให้กรองจาก field 'type' ใน place_amenities
     final typeRef = FirebaseFirestore.instance.doc(
       'amenity_types/${selectedType.toUpperCase()}',
     );
@@ -44,6 +55,8 @@ class _AllMapState extends State<AllMap> {
   @override
   void initState() {
     super.initState();
+    _flutterMapController = MapController();
+    context.read<MyMapController>().setMapController(_flutterMapController);
   }
 
   @override
@@ -51,16 +64,18 @@ class _AllMapState extends State<AllMap> {
     final c = context.watch<MyMapController>();
     final tileUrl = c.tileUrl;
     final mapType = c.mapType;
+
     return ValueListenableBuilder(
       valueListenable: isDarkModeNotifier,
       builder: (context, isDarkMode, child) {
         return Scaffold(
           body: FlutterMap(
+            mapController: _flutterMapController,
             options: MapOptions(
               initialCenter: LatLng(14.0711, 100.6041),
               initialZoom: 16,
-              // minZoom: 14,
-              // maxZoom: 18,
+              minZoom: 14,
+              maxZoom: 18,
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all, // เปิดให้ซูม/แพน/หมุนได้
               ),
@@ -83,10 +98,7 @@ class _AllMapState extends State<AllMap> {
                   }
         
                   // Debug
-                  print("Docs count: ${snapshot.data!.docs.length}");
-                  for (var doc in snapshot.data!.docs) {
-                    print("Doc ID: ${doc.id}, Data: ${doc.data()}");
-                  }
+        
                   if (snapshot.data!.docs.isEmpty) {
                     return const Center(child: Text("No data found"));
                   }
@@ -106,16 +118,21 @@ class _AllMapState extends State<AllMap> {
         
                       // Debug Type Ref
                       final typeRef = data['type'];
-                      print("Type Ref: $typeRef");
+                      //print("Type Ref: $typeRef");
                       final String typeId = (typeRef is DocumentReference)
                           ? typeRef.id
                           : 'UNKNOWN';
-                      print(" Type ID: $typeId");
+                      // print(" Type ID: $typeId");
         
                       final key = typeId.trim().toUpperCase();
+                      final selectedType = c.selectedTypeKey;
                       final placeRef = FirebaseFirestore.instance
-                          .collection('place_amenities')
+                          .collection(
+                            selectedType == 'PLACES' ? 'places' : 'place_amenities',
+                          )
                           .doc(doc.id);
+        
+                      print("Place Ref: ${placeRef.path} $selectedType");
         
                       final placeName = data['name'] ?? 'ไม่มีชื่อ';
                       final placeDesc = data['description'] ?? '';
@@ -134,19 +151,22 @@ class _AllMapState extends State<AllMap> {
                           'icon': Icons.elevator,
                         },
                         'RAMP': {
-                          'color': Colors.purple,
+                          'color': const Color.fromRGBO(156, 39, 176, 1),
                           'icon': Icons.accessible_forward,
                         },
                       };
                       final selectedConfig =
                           typeConfig[key] ??
-                          {'color': Colors.grey, 'icon': Icons.location_on};
+                          {
+                            'color': const Color.fromARGB(255, 0, 0, 0),
+                            'icon': Icons.location_city,
+                          };
         
                       return Marker(
                         point: LatLng(lat, lng),
                         width: 100,
                         height: 100,
-                        alignment: Alignment.topCenter,
+                        alignment: Alignment.center,
                         child: TweenAnimationBuilder<double>(
                           tween: Tween(begin: 0.0, end: 1.0),
                           duration: const Duration(milliseconds: 800),
@@ -164,23 +184,76 @@ class _AllMapState extends State<AllMap> {
                           },
                           child: BouncyOnTap(
                             onTap: () {
+                              // อ่าน rawImages ที่อาจจะเป็น String (url เดี่ยว), List หรือ Map
+                              final rawImages = data['images'];
+        
+                              // Normalize เป็น List<String>
+                              final images = <String>[];
+                              if (rawImages == null) {
+                                // keep empty
+                              } else if (rawImages is String) {
+                                if (rawImages.startsWith('http'))
+                                  images.add(rawImages);
+                              } else if (rawImages is List) {
+                                for (final e in rawImages) {
+                                  if (e == null) continue;
+                                  if (e is String && e.startsWith('http')) {
+                                    images.add(e);
+                                  } else if (e is Map &&
+                                      (e['url'] != null || e['src'] != null)) {
+                                    final url = (e['url'] ?? e['src']).toString();
+                                    if (url.startsWith('http')) images.add(url);
+                                  }
+                                }
+                              } else if (rawImages is Map) {
+                                final url = (rawImages['url'] ?? rawImages['src'])
+                                    ?.toString();
+                                if (url != null && url.startsWith('http'))
+                                  images.add(url);
+                              }
+        
+                              debugPrint('Normalized images: $images');
+        
+                              final toilets = (data['toilets'] is num)
+                                  ? (data['toilets'] as num).toInt()
+                                  : null;
+                              final elevators = (data['elevators'] is num)
+                                  ? (data['elevators'] as num).toInt()
+                                  : null;
+                              final parkings = (data['parkings'] is num)
+                                  ? (data['parkings'] as num).toInt()
+                                  : null;
+        
+                              final name = data['name']?.toString() ?? placeName;
+                              final desc =
+                                  data['description']?.toString() ?? placeDesc;
+        
+                              final floorData = data['floor'];
+                              final String? floor = (floorData is String)
+                                  ? floorData
+                                  : null;
+        
+                              final rawAmenityRefs = data['place_amenities'];
+                              final List<dynamic>? amenityRefs =
+                                  (rawAmenityRefs is List) ? rawAmenityRefs : null;
+        
                               showPlaceSheet(
                                 context,
-                                title: placeName,
+                                title: name,
                                 placeRef: placeRef,
-                                description: placeDesc,
-                                images: const [
-                                  'https://preview.redd.it/68birnfq82701.png?width=320&crop=smart&auto=webp&s=0aabfe14ddd96ab5c511a2f4804c4353e5099b0f',
-                                  'https://preview.redd.it/68birnfq82701.png?width=320&crop=smart&auto=webp&s=0aabfe14ddd96ab5c511a2f4804c4353e5099b0f',
-                                ],
-                                // toilets: 2,
-                                // elevators: 1,
-                                // parkings: 10,
+                                description: desc,
+                                images: images,
+                                toilets: toilets,
+                                elevators: elevators,
+                                parkings: parkings,
+                                floor: floor,
+                                amenityRefs: amenityRefs,
                                 onNavigate: () {
+                                  Navigator.pop(context);
                                   navigateToPlaceWheelchair(
                                     context,
                                     placeRef: placeRef,
-                                    orsApiKey: orsApiKey, // ส่ง API key ตรงนี้
+                                    orsApiKey: orsApiKey,
                                     showStepsSheet: true,
                                   );
                                 },
@@ -192,7 +265,9 @@ class _AllMapState extends State<AllMap> {
                               icon: Icon(
                                 selectedConfig['icon'],
                                 size: 28,
-                                color: Colors.black87,
+                                color: selectedConfig['icon'] == Icons.location_city
+                                    ? Colors.white
+                                    : Colors.black,
                               ),
                               title: placeName,
                             ),
@@ -211,7 +286,7 @@ class _AllMapState extends State<AllMap> {
                   children: [
                     // ปุ่ม Filter
                     FloatingActionButton(
-                      backgroundColor: context.pureOnBackground,
+                      backgroundColor: Colors.white,
                       onPressed: () async {
                         await showFilterOptionsSheet(
                           context,
@@ -220,45 +295,43 @@ class _AllMapState extends State<AllMap> {
                           },
                         );
                       },
-                      child: Icon(Icons.filter_list, color: Theme.of(context).colorScheme.onSurface),
+                      child: const Icon(Icons.filter_list, color: Colors.black),
                     ),
         
                     const SizedBox(height: 16),
         
                     // ปุ่มสลับ Map Type
                     FloatingActionButton(
-                      backgroundColor: context.pureOnBackground,
-                      foregroundColor: context.pureOnText,
-                      child: Icon(Icons.layers ),
+                      backgroundColor: Colors.white,
+                      child: const Icon(Icons.layers, color: Colors.black),
                       onPressed: () async {
                         final chosen = await showMapTypeSheet(
                           context: context,
                           current: mapType,
-                          onSelected: c.setMapType,
-                           // อัปเดตทันทีเมื่อแตะรายการ
+                          onSelected: c.setMapType, // อัปเดตทันทีเมื่อแตะรายการ
                         );
         
+                        // ถ้าอยากอัปเดตเฉพาะตอนปิด sheet ก็ทำแบบนี้แทน:
+                        // if (chosen != null) c.setMapType(chosen);
                       },
                     ),
+        
                     const SizedBox(height: 16),
                     // ปุ่มหยุดเดินทาง (แสดงเมื่อมีเส้นทาง)
                     if (c.routePoints.isNotEmpty)
                       FloatingActionButton(
-                        backgroundColor: context.pureOnBackground,
-                        foregroundColor: context.pureOnText,
+                        backgroundColor: const Color.fromARGB(255, 0, 190, 57),
                         onPressed: () {
                           showModalBottomSheet(
-                            backgroundColor: context.pureOnBackground,
                             context: context,
                             isScrollControlled: true,
                             builder: (_) =>
-
-                               RouteStepsSheet(), 
+                                const RouteStepsSheet(), // <-- เรียกใช้ widget ที่เราแยกไว้
                           );
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.list,
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: Color.fromARGB(255, 255, 255, 255),
                         ),
                         tooltip: 'ดูเส้นทางนำทาง',
                       ),

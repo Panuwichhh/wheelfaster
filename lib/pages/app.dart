@@ -118,14 +118,15 @@ class _HomeState extends State<Home> {
                         return SlideAction(
                           key: key,
                           text: 'Slide To SOS!!!',
+                          textStyle: const TextStyle(
+                            color: Color.fromARGB(255, 0, 0, 0),
+                            fontWeight: FontWeight.bold,
+                          ),
                           innerColor: const Color(0xFFFF3B30),
-                          outerColor: const Color(0xFF2C2C2E),
-                          textStyle: const TextStyle(color: Colors.white),
+                          outerColor: const Color.fromARGB(255, 255, 255, 255),
+                          elevation: 2,
                           onSubmit: () async {
-                            final uri = Uri(
-                              scheme: 'tel',
-                              path: '1669',
-                            ); // หมายเลขฉุกเฉิน
+                            final uri = Uri(scheme: 'tel', path: '1669');
                             final ok = await canLaunchUrl(uri);
                             if (ok) {
                               await launchUrl(
@@ -133,7 +134,6 @@ class _HomeState extends State<Home> {
                                 mode: LaunchMode.externalApplication,
                               );
                             } else {
-                              // เผื่อกรณีเปิดโทรศัพท์ไม่ได้
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
