@@ -18,6 +18,7 @@ Future<void> navigateToPlaceWheelchair(
     // 1) ตรวจว่า location service เปิดอยู่หรือไม่
     final serviceEnabled = await Geolocator.isLocationServiceEnabled(); // NEW
     if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
       throw Exception('กรุณาเปิด Location (GPS) ก่อนใช้งาน');
     }
 
@@ -30,6 +31,7 @@ Future<void> navigateToPlaceWheelchair(
       throw Exception('ต้องอนุญาตสิทธิ์ตำแหน่งก่อน');
     }
     if (perm == LocationPermission.deniedForever) {
+      await Geolocator.openAppSettings();
       throw Exception('สิทธิ์ตำแหน่งถูกปฏิเสธถาวร กรุณาไปเปิดใน Settings');
     }
 
@@ -43,7 +45,8 @@ Future<void> navigateToPlaceWheelchair(
 
     // 4) อ่านพิกัดปลายทางจาก placeRef
     final to = await _getLatLngFromPlaceRef(placeRef);
-
+    print('FROM: ${from.latitude}, ${from.longitude}');
+    print('TO  : ${to.latitude}, ${to.longitude}');
     // 5) เรียก ORS wheelchair
     final ors = OrsService(orsApiKey);
     final route = await ors.wheelchairRoute(from: from, to: to);

@@ -3,6 +3,7 @@ import 'package:slide_to_act/slide_to_act.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wheelfaster/controllers/map_controller.dart';
+import 'package:wheelfaster/extension.dart';
 import 'package:wheelfaster/notifier/notifier.dart';
 import 'package:wheelfaster/pages/map.dart';
 import 'package:wheelfaster/component/bottom_nav.dart';
@@ -59,11 +60,13 @@ class _HomeState extends State<Home> {
             // Logo
             const SizedBox(height: 20),
            IconButton(
+              color:context.pureOn,
               onPressed: () {
                 isDarkModeNotifier.value = !isDarkModeNotifier.value;
               },
               icon: ValueListenableBuilder<bool>(
                 valueListenable: isDarkModeNotifier,
+                
                 builder: (BuildContext context, bool isDarkMode, Widget? child) {
                   return Icon(
                     isDarkMode ? Icons.dark_mode : Icons.light_mode,

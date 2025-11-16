@@ -17,8 +17,8 @@ Future<MapTypeValue?> showMapTypeSheet({
     required String label,
   }) {
     return ListTile(
-      leading: Icon(icon, color: context.pureOnText),
-      title: Text(label, style: TextStyle(color: context.pureOnText)),
+      leading: Icon(icon, color: context.onText),
+      title: Text(label, style: TextStyle(color: context.onText)),
 
       // leading: Icon(
       //   icon,

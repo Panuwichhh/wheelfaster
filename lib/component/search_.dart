@@ -5,21 +5,22 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:wheelfaster/controllers/map_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:wheelfaster/extension.dart';
 
 void showSearchSheet(BuildContext context) {
   final String orsApiKey = dotenv.env['ORS_API_KEY'] ?? '';
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.transparent,
+    backgroundColor: const Color.fromARGB(0, 13, 13, 13),
     builder: (_) => DraggableScrollableSheet(
       initialChildSize: 0.5,
       minChildSize: 0.3,
       maxChildSize: 0.9,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration:  BoxDecoration(
+            color: context.onBackground,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
@@ -29,7 +30,7 @@ void showSearchSheet(BuildContext context) {
                 width: 44,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: Colors.black26,
+                  color: context.onText,
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -67,14 +68,14 @@ void showSearchSheet(BuildContext context) {
 
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: Colors.grey[200],
+                            backgroundColor: Color.fromARGB(255, 211, 211, 211),
                             child: const Icon(
                               Icons.location_on,
                               color: Color.fromARGB(255, 26, 156, 0),
                             ),
                           ),
                           title: Text(name),
-                          textColor: Colors.black,
+                          textColor: context.onText,
                           subtitle: Text(
                             desc,
                             maxLines: 1,

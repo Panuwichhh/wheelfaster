@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wheelfaster/extension.dart';
 import '../controllers/map_controller.dart';
 
 /// ใช้ร่วมกับ showModalBottomSheet(backgroundColor: Colors.transparent, isScrollControlled: true)
@@ -9,7 +10,7 @@ class RouteStepsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      expand: false, // ✅ ป้องกันไม่ให้กินพื้นที่เต็มจอ
+      expand: false, //  ป้องกันไม่ให้กินพื้นที่เต็มจอ
       initialChildSize: 0.35, // เริ่มต้นแสดง 35% ของจอ
       minChildSize: 0.20, // ดึงลงได้ต่ำสุด 20%
       maxChildSize: 0.90, // ดึงขึ้นได้สูงสุด 90%
@@ -46,7 +47,7 @@ class _RouteStepsPanel extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       child: Material(
-        color: Colors.white,
+        color: context.onBackground,
         child: Column(
           children: [
             const SizedBox(height: 8),
@@ -54,7 +55,7 @@ class _RouteStepsPanel extends StatelessWidget {
               width: 44,
               height: 5,
               decoration: BoxDecoration(
-                color: Colors.black26,
+                color: context.onText,
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -62,12 +63,13 @@ class _RouteStepsPanel extends StatelessWidget {
 
             Text(
               'เส้นทางวีลแชร์',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18 , color: context.onText),
             ),
             const SizedBox(height: 8),
             Text(
               '${_fmtDist(c.routeDistance)} • ${_fmtTime(c.routeDuration)}',
-              style: const TextStyle(color: Colors.black54),
+              style: TextStyle(color: context.onText),
             ),
             const Divider(),
 

@@ -5,6 +5,7 @@ import 'package:wheelfaster/component/auth/login_modal.dart';
 import 'package:wheelfaster/component/reviews.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wheelfaster/component/reviews_list.dart';
+import 'package:wheelfaster/extension.dart';
 
 class PlaceSheet extends StatelessWidget {
   final String title;
@@ -79,12 +80,12 @@ class PlaceSheet extends StatelessWidget {
         return Container(
           decoration: BoxDecoration(
             color: surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            boxShadow: const [
+            borderRadius:  BorderRadius.vertical(top: Radius.circular(20)),
+            boxShadow:  [
               BoxShadow(
                 blurRadius: 12,
                 offset: Offset(0, -2),
-                color: Colors.black26,
+                color: context.onText,
               ),
             ],
           ),
@@ -95,7 +96,7 @@ class PlaceSheet extends StatelessWidget {
                 width: 44,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: Colors.black26,
+                  color: context.onText,
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -103,9 +104,9 @@ class PlaceSheet extends StatelessWidget {
 
               // Header
               ListTile(
-                leading: const Icon(
+                leading:  Icon(
                   Icons.location_on,
-                  color: Colors.black,
+                  color: context.onText,
                   size: 32,
                 ),
                 title: Text(
@@ -215,10 +216,10 @@ class PlaceSheet extends StatelessWidget {
                               return (localFloor != null)
                                   ? Text(
                                       'ชั้น $localFloor',
-                                      style: const TextStyle(
+                                      style:  TextStyle(
                                         fontSize: 22,
                                         fontWeight: FontWeight.w700,
-                                        color: Colors.black87,
+                                        color: context.onText,
                                       ),
                                     )
                                   : const SizedBox.shrink(); // ถ้าไม่มี floor ก็ไม่ต้องแสดง
@@ -299,10 +300,11 @@ class PlaceSheet extends StatelessWidget {
                                       });
                                     }
                                   },
-                                  child: const Text(
+                                  child: Text(
                                     "รีวิว",
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
+                                      color: const Color.fromARGB(255, 216, 216, 216)
                                     ),
                                   ),
                                 ),

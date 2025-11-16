@@ -54,9 +54,12 @@ class _AllMapState extends State<AllMap> {
 
   @override
   void initState() {
-    super.initState();
+     super.initState();
     _flutterMapController = MapController();
-    context.read<MyMapController>().setMapController(_flutterMapController);
+    final mapCtrl = context.read<MyMapController>();
+    mapCtrl.setMapController(_flutterMapController);
+    // เรียกเริ่ม track ตำแหน่งผู้ใช้แบบ realtime
+    mapCtrl.startUserLocation();
   }
 
   @override
@@ -85,6 +88,34 @@ class _AllMapState extends State<AllMap> {
                 urlTemplate: tileUrl, // ใช้ urlTemplate จาก controller
                 subdomains: const ['a', 'b', 'c'],
                 userAgentPackageName: 'com.example.app',
+              ),
+              Consumer<MyMapController>(
+                builder: (context, ctrl, _) {
+                  if (ctrl.userLocation == null) {
+                    // ยังไม่ได้ตำแหน่ง → ไม่ต้องวาดอะไร
+                    return const SizedBox.shrink();
+                  }
+
+                  return MarkerLayer(
+                    markers: [
+                      Marker(
+                        width: 40,
+                        height: 40,
+                        point: ctrl.userLocation!,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 3,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               StreamBuilder(
                 stream: _placesStream(),
@@ -286,7 +317,7 @@ class _AllMapState extends State<AllMap> {
                   children: [
                     // ปุ่ม Filter
                     FloatingActionButton(
-                      backgroundColor: Colors.white,
+                      backgroundColor: context.onBackground,
                       onPressed: () async {
                         await showFilterOptionsSheet(
                           context,
@@ -295,15 +326,15 @@ class _AllMapState extends State<AllMap> {
                           },
                         );
                       },
-                      child: const Icon(Icons.filter_list, color: Colors.black),
+                      child: Icon(Icons.filter_list, color: context.onText),
                     ),
         
                     const SizedBox(height: 16),
         
                     // ปุ่มสลับ Map Type
                     FloatingActionButton(
-                      backgroundColor: Colors.white,
-                      child: const Icon(Icons.layers, color: Colors.black),
+                      backgroundColor: context.onBackground,
+                      child:  Icon(Icons.layers, color: context.onText),
                       onPressed: () async {
                         final chosen = await showMapTypeSheet(
                           context: context,

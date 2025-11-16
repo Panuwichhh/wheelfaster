@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart'; 
 import 'package:wheelfaster/models/place_amenity.dart';
 import 'package:wheelfaster/services/ors_service.dart';
 import 'package:wheelfaster/services/place_amenity_service.dart';
@@ -56,6 +57,41 @@ class MyMapController extends ChangeNotifier {
     _mapType = type;
     notifyListeners();
   }
+  //Realtime update location
+  LatLng? _userLocation;
+  LatLng? get userLocation => _userLocation;
+
+  StreamSubscription<Position>? _posSub;
+
+  Future<void> startUserLocation() async {
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return;
+
+    var perm = await Geolocator.checkPermission();
+    if (perm == LocationPermission.denied) {
+      perm = await Geolocator.requestPermission();
+    }
+    if (perm == LocationPermission.denied ||
+        perm == LocationPermission.deniedForever) {
+      return;
+    }
+
+    _posSub?.cancel();
+    _posSub = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 3, // ขยับเกิน 3 เมตรค่อยอัปเดต
+      ),
+    ).listen((pos) {
+      _userLocation = LatLng(pos.latitude, pos.longitude);
+      notifyListeners(); // ให้ map.dart รีบิลด์แล้วเลื่อนหมุด
+    });
+  }
+
+  void stopUserLocation() {
+    _posSub?.cancel();
+    _posSub = null;
+  }
 
   // ===== Data state =====
   final List<PlaceAmenity> _items = [];
@@ -104,11 +140,6 @@ class MyMapController extends ChangeNotifier {
     );
   }
 
-  @override
-  void dispose() {
-    _sub?.cancel();
-    super.dispose();
-  }
 
   bool get hasRoute => currentRoute != null && routePoints.isNotEmpty;
   OrsRoute? get route => currentRoute;
@@ -134,5 +165,12 @@ class MyMapController extends ChangeNotifier {
     routeDistance = r.distance;
     routeDuration = r.duration;
     notifyListeners();
+  }
+  
+    @override
+  void dispose() {
+    _sub?.cancel();    // ยกเลิก stream สถานที่
+    _posSub?.cancel(); // ยกเลิก stream ตำแหน่งผู้ใช้ (realtime)
+    super.dispose();
   }
 }
