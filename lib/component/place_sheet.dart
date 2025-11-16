@@ -2,7 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wheelfaster/component/auth/login_modal.dart';
-import 'package:wheelfaster/component/reviews.dart';
+import 'package:wheelfaster/component/ReviewsModal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wheelfaster/component/reviews_list.dart';
 
@@ -67,7 +67,7 @@ class PlaceSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final surface = Theme.of(context).colorScheme.surface;
-    final user = FirebaseAuth.instance.currentUser;
+    // final user = FirebaseAuth.instance.currentUser;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.28,
@@ -228,22 +228,6 @@ class PlaceSheet extends StatelessWidget {
                           Row(
                             // ... (ปุ่ม Logout, นำทาง, รีวิว ... เหมือนเดิม)
                             children: [
-                              if (user != null)
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    await FirebaseAuth.instance.signOut();
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text("ออกจากระบบเรียบร้อย"),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: const Text("Logout"),
-                                ),
                               if (onNavigate != null) ...[
                                 const SizedBox(width: 8),
                                 FilledButton.icon(
@@ -272,32 +256,11 @@ class PlaceSheet extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(15),
                                     ),
                                   ),
-                                  onPressed: () async {
-                                    final user =
-                                        FirebaseAuth.instance.currentUser;
-                                    if (user == null) {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => LoginModal(
-                                          onLoginSuccess: () {
-                                            Navigator.pop(context);
-                                            showReviewModal(context, (
-                                              rating,
-                                              comment,
-                                            ) {
-                                              // รับค่าจากรีวิว
-                                            });
-                                          },
-                                        ),
-                                      );
-                                    } else {
-                                      showReviewModal(context, (
-                                        rating,
-                                        comment,
-                                      ) {
-                                        // รับค่าจากรีวิว
-                                      });
-                                    }
+                                  onPressed: () {
+                                    showReviewModal(
+                                      context,
+                                      placeRef: placeRef,
+                                    );
                                   },
                                   child: const Text(
                                     "รีวิว",
