@@ -12,7 +12,7 @@
                <!-- ใส่ API Key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBvd_tYuSo8rq-kbFlNX3AuM91wKgXm-kg"/>
+            android:value="${GOOGLE_API}" />
             
         <activity
             android:name=".MainActivity"
