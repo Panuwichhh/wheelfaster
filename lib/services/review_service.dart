@@ -1,13 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/review.dart';
+import 'dart:math';
+import 'ip_service.dart'; // ⭐ import เข้ามา
 
 class ReviewService {
+  String _randomUserId() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final rand = Random();
+    return List.generate(
+      10,
+      (index) => chars[rand.nextInt(chars.length)],
+    ).join();
+  }
+
   final _col = FirebaseFirestore.instance
       .collection('reviews')
       .withConverter<Review>(
         fromFirestore: (snap, _) => Review.fromDoc(snap),
         toFirestore: (review, _) => review.toMap(),
       );
+
+  // ⭐ สร้าง instance ของ IpService ไว้ใช้
+  final IpService _ipService = IpService();
 
   /// ดึงรีวิวทั้งหมด
   Stream<List<Review>> streamAll({int limit = 50}) {
@@ -25,32 +39,49 @@ class ReviewService {
   }) {
     return _col
         .where(
-          'placeId',
+          'placeRef', // ⭐ แนะนำให้ใช้ key เดียวกับ model เช่น placeRef
           isEqualTo: placeRef,
-        ) // ใช้ DocumentReference เทียบตรงๆ
+        )
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
         .map((qs) => qs.docs.map((d) => d.data()).toList());
   }
 
-  /// เพิ่มรีวิวใหม่
   Future<void> addReview({
     required DocumentReference placeRef,
-    required String userId,
+    String? userId,
     required String comment,
     required double rating,
+    String? ip,
   }) async {
-    await _col.add(
-      Review(
-        id: '',
-        placeRef: placeRef,
-        userId: userId,
-        comment: comment,
-        rating: rating,
-        createdAt: null,
-      ),
-    );
+    try {
+      final uid = userId ?? _randomUserId();
+
+      print("🔥 กำลังเพิ่มรีวิว...");
+      print("📌 placeRef = ${placeRef.path}");
+      print("⭐ rating = $rating");
+      print("💬 comment = $comment");
+      print("👤 userId = $uid");
+
+      await _col.add(
+        Review(
+          id: '',
+          placeRef: placeRef,
+          userId: uid,
+          comment: comment,
+          rating: rating,
+          createdAt: null,
+          // ip: resolvedIp,
+        ),
+      );
+
+      print("✅ เพิ่มรีวิวสำเร็จ!");
+    } catch (e, stack) {
+      print("❌ เพิ่มรีวิวล้มเหลว: $e");
+      print(stack);
+      rethrow; // เผื่อ UI จับ error ต่อ
+    }
   }
 
   Future<void> updateReview(

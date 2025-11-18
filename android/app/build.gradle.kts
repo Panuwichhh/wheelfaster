@@ -6,6 +6,12 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+def dotenv = new Properties()
+dotenv.load(new FileInputStream(rootProject.file(".env")))
+
+manifestPlaceholders = [
+    MAPS_API_KEY: dotenv.getProperty("MAPS_API_KEY")
+]
 android {
     namespace = "com.example.wheelfaster"
     compileSdk = flutter.compileSdkVersion

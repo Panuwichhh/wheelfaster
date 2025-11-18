@@ -45,15 +45,15 @@ class ReviewsList extends StatelessWidget {
             return ListTile(
               title: Text("⭐️ ${r.rating.toStringAsFixed(1)}  •  ${r.comment}"),
               subtitle: Text("by ${r.userId}  •  ${r.createdAt}"),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete_outline),
-                onPressed: () async {
-                  await _service.deleteReview(r.id);
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text("ลบรีวิวแล้ว")));
-                },
-              ),
+              // trailing: IconButton(
+              //   icon: const Icon(Icons.delete_outline),
+              //   onPressed: () async {
+              //     await _service.deleteReview(r.id);
+              //     ScaffoldMessenger.of(
+              //       context,
+              //     ).showSnackBar(const SnackBar(content: Text("ลบรีวิวแล้ว")));
+              //   },
+              // ),
             );
           },
         );
