@@ -6,26 +6,9 @@ plugins {
     id("com.google.gms.google-services")
 }
 
-def dotenv = new Properties()
-dotenv.load(new FileInputStream(rootProject.file(".env")))
-
-manifestPlaceholders = [
-    MAPS_API_KEY: dotenv.getProperty("MAPS_API_KEY")
-]
 android {
-    namespace = "com.example.wheelfaster"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
-
+    namespace = "com.example.wheelfaster"
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.wheelfaster"
@@ -35,6 +18,17 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // ลบโค้ดส่วน manifestPlaceholders["MAPS_API_KEY"] = ... ออกแล้ว
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     buildTypes {
