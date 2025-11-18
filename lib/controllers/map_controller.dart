@@ -50,8 +50,7 @@ class MyMapController extends ChangeNotifier {
       case 'light':
         return 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}{r}.png';
       case 'dark':
-        return 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
-
+        return 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 
       default:
         return 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png';
@@ -91,9 +90,9 @@ class MyMapController extends ChangeNotifier {
     }
 
     // ถ้าผู้ใช้อยู่ไกลกว่า 10m จากเส้น ไม่ต้องตัด (กันเผื่อ GPS เพี้ยน)
-    if (closestDist > 10) return;
+    if (closestDist > 40) return;
 
-    // ตัดจุดก่อนหน้าออก ให้เหลือเฉพาะเส้น "ข้างหน้าผู้ใช้"
+    // ตัดจุดก่อนหน้าออก ให้เหลือเฉพาะเส้น ข้างหน้าผู้ใช้
     if (closestIndex > 0 && closestIndex < routePoints.length) {
       routePoints = routePoints.sublist(closestIndex);
 
@@ -221,6 +220,7 @@ class MyMapController extends ChangeNotifier {
     routeDistance = r.distance;
     routeDuration = r.duration;
     notifyListeners();
+    _updateRouteProgress();
   }
   
     @override
