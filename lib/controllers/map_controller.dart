@@ -6,12 +6,14 @@ import 'package:geolocator/geolocator.dart';
 import 'package:wheelfaster/models/place_amenity.dart';
 import 'package:wheelfaster/services/ors_service.dart';
 import 'package:wheelfaster/services/place_amenity_service.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 
 class MyMapController extends ChangeNotifier {
   MyMapController(this._service);
 
   final PlaceAmenityService _service;
   OrsRoute? currentRoute;
+  final Distance _distance = const Distance();
 
   // ===== Map Controller =====
   MapController? _mapController;
@@ -27,7 +29,7 @@ class MyMapController extends ChangeNotifier {
       debugPrint('MapController not initialized');
       return;
     }
-    // สั่งให้ .move (ย้าย) ทันที
+    
     _mapController!.move(destLocation, destZoom);
   }
 
@@ -47,6 +49,9 @@ class MyMapController extends ChangeNotifier {
 
       case 'light':
         return 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}{r}.png';
+      case 'dark':
+        return 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
+
 
       default:
         return 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png';
@@ -61,7 +66,45 @@ class MyMapController extends ChangeNotifier {
   LatLng? _userLocation;
   LatLng? get userLocation => _userLocation;
 
+  double? _heading; // degree 0–360
+  double? get heading => _heading;
+
   StreamSubscription<Position>? _posSub;
+  StreamSubscription<dynamic>? _compassSub;
+
+  void _updateRouteProgress() {
+    if (_userLocation == null) return;
+    if (routePoints.isEmpty) return;
+
+    final user = _userLocation!;
+
+    // หา point บนเส้นทางที่ใกล้ user มากที่สุด
+    int closestIndex = 0;
+    double closestDist = double.infinity;
+
+    for (int i = 0; i < routePoints.length; i++) {
+      final d = _distance(user, routePoints[i]); // หน่วยเป็นเมตร
+      if (d < closestDist) {
+        closestDist = d;
+        closestIndex = i;
+      }
+    }
+
+    // ถ้าผู้ใช้อยู่ไกลกว่า 10m จากเส้น ไม่ต้องตัด (กันเผื่อ GPS เพี้ยน)
+    if (closestDist > 10) return;
+
+    // ตัดจุดก่อนหน้าออก ให้เหลือเฉพาะเส้น "ข้างหน้าผู้ใช้"
+    if (closestIndex > 0 && closestIndex < routePoints.length) {
+      routePoints = routePoints.sublist(closestIndex);
+
+      // ถ้าใกล้ถึงปลายทางแล้ว เคลียร์ route ทิ้งเลย
+      if (routePoints.length < 5) {
+        clearRoute();
+      } else {
+        notifyListeners();
+        }
+      }
+  }
 
   Future<void> startUserLocation() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -76,6 +119,7 @@ class MyMapController extends ChangeNotifier {
       return;
     }
 
+    // ตำแหน่งผู้ใช้แบบ realtime
     _posSub?.cancel();
     _posSub = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
@@ -84,13 +128,25 @@ class MyMapController extends ChangeNotifier {
       ),
     ).listen((pos) {
       _userLocation = LatLng(pos.latitude, pos.longitude);
-      notifyListeners(); // ให้ map.dart รีบิลด์แล้วเลื่อนหมุด
+      _updateRouteProgress();
+      notifyListeners();
+      
     });
+
+    // เข็มทิศ / ทิศที่หันอยู่
+    _compassSub?.cancel();
+    _compassSub = FlutterCompass.events!.listen((event) {
+      _heading = event.heading; // องศา 0–360
+      notifyListeners();
+    });
+    
   }
 
   void stopUserLocation() {
     _posSub?.cancel();
+    _compassSub?.cancel();
     _posSub = null;
+    _compassSub = null;
   }
 
   // ===== Data state =====
@@ -171,6 +227,7 @@ class MyMapController extends ChangeNotifier {
   void dispose() {
     _sub?.cancel();    // ยกเลิก stream สถานที่
     _posSub?.cancel(); // ยกเลิก stream ตำแหน่งผู้ใช้ (realtime)
+    _compassSub?.cancel();
     super.dispose();
   }
 }

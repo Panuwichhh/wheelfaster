@@ -90,33 +90,30 @@ class _AllMapState extends State<AllMap> {
                 userAgentPackageName: 'com.example.app',
               ),
               Consumer<MyMapController>(
-                builder: (context, ctrl, _) {
-                  if (ctrl.userLocation == null) {
-                    // ยังไม่ได้ตำแหน่ง → ไม่ต้องวาดอะไร
-                    return const SizedBox.shrink();
-                  }
+                  builder: (context, ctrl, _) {
+                    if (ctrl.userLocation == null) {
+                      return const SizedBox.shrink();
+                    }
 
-                  return MarkerLayer(
-                    markers: [
-                      Marker(
-                        width: 40,
-                        height: 40,
-                        point: ctrl.userLocation!,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 3,
+                    return MarkerLayer(
+                      markers: [
+                        Marker(
+                          width: 30,
+                          height: 30,
+                          point: ctrl.userLocation!,
+                          child: Transform.rotate(
+                            angle: (ctrl.heading ?? 0) * (3.1415926535 / 180),
+                            child: const Icon(
+                              Icons.navigation,
+                              size: 40,
+                              color: Colors.blue,
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                      ],
+                    );
+                  },
+                ),
               StreamBuilder(
                 stream: _placesStream(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {

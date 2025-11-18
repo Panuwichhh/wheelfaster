@@ -7,6 +7,7 @@ import 'package:wheelfaster/extension.dart';
 import 'package:wheelfaster/notifier/notifier.dart';
 import 'package:wheelfaster/pages/map.dart';
 import 'package:wheelfaster/component/bottom_nav.dart';
+import 'package:wheelfaster/extension.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -24,19 +25,62 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
   final scheme = Theme.of(context).colorScheme;
 
   return Scaffold(
-    backgroundColor: Color(0xFF01CE55), 
-    body: IndexedStack(
-      index: _selectedTab,
+    backgroundColor: const Color(0xFF01CE55),
+    body: Stack(
       children: [
-        _buildHomePage(),
-        const SizedBox(),
-        AllMap(),
+        // --- หน้าหลักของแท็บ ---
+        IndexedStack(
+          index: _selectedTab,
+          children: [
+            _buildHomePage(),
+            const SizedBox(),
+            const AllMap(),
+          ],
+        ),
+
+        // --- ปุ่ม Toggle Dark/Light ---
+        Positioned(
+          top: 50,
+          right: 16,
+          child: GestureDetector(
+            onTap: () {
+              isDarkModeNotifier.value = !isDarkModeNotifier.value;
+                final c = context.read<MyMapController>();
+                c.setMapType(isDarkModeNotifier.value ? "dark" : "light");
+            },
+            child: ValueListenableBuilder<bool>(
+              valueListenable: isDarkModeNotifier,
+              builder: (context, isDark, _) {
+                return Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white : Colors.black,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.25),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    isDark ? Icons.light_mode : Icons.dark_mode,
+                    color: isDark ? Colors.black : Colors.white,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
       ],
     ),
+
     bottomNavigationBar: AppBottomNavigationBar(
       selectedIndex: _selectedTab,
       onTap: (index) async {
@@ -49,7 +93,6 @@ class _HomeState extends State<Home> {
     ),
   );
 }
-
   // ---------------- หน้าแรก (Home Page) ----------------
   Widget _buildHomePage() {
     return SafeArea(
@@ -59,21 +102,6 @@ class _HomeState extends State<Home> {
           children: [
             // Logo
             const SizedBox(height: 20),
-           IconButton(
-              color:context.pureOn,
-              onPressed: () {
-                isDarkModeNotifier.value = !isDarkModeNotifier.value;
-              },
-              icon: ValueListenableBuilder<bool>(
-                valueListenable: isDarkModeNotifier,
-                
-                builder: (BuildContext context, bool isDarkMode, Widget? child) {
-                  return Icon(
-                    isDarkMode ? Icons.dark_mode : Icons.light_mode,
-                  );
-                },
-              ),
-            ),
             Center(
               child: Column(
                 children: const [
@@ -99,7 +127,7 @@ class _HomeState extends State<Home> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
+                  color: context.onBlock,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -205,9 +233,9 @@ class _HomeState extends State<Home> {
 
       return ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: scheme.surface, 
-          foregroundColor: scheme.onPrimary,
-          side: BorderSide(color: scheme.primary, width: 1),
+          backgroundColor: context.onBlock2, 
+          foregroundColor: context.onText,
+          side: BorderSide(color: context.onRoot, width: 1),
           elevation: 3,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
