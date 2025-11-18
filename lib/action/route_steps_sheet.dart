@@ -21,7 +21,7 @@ class RouteStepsSheet extends StatelessWidget {
 }
 
 class _RouteStepsPanel extends StatelessWidget {
-  const _RouteStepsPanel({super.key, required this.scrollController});
+  const _RouteStepsPanel({required this.scrollController});
   final ScrollController scrollController;
 
   String _fmtDist(double m) => m >= 1000
@@ -59,7 +59,6 @@ class _RouteStepsPanel extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-
             Text(
               'เส้นทางวีลแชร์',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -70,7 +69,6 @@ class _RouteStepsPanel extends StatelessWidget {
               style: const TextStyle(color: Colors.black54),
             ),
             const Divider(),
-
             Expanded(
               child: ListView.separated(
                 controller: scrollController, // ✅ ต้องใส่ controller ตรงนี้
@@ -88,7 +86,6 @@ class _RouteStepsPanel extends StatelessWidget {
                 },
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(16),
               child: FilledButton.icon(

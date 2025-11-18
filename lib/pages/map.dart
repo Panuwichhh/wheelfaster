@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wheelfaster/action/navigate_wheelchair.dart';
-import 'package:wheelfaster/action/routeStepsSheet.dart';
+import 'package:wheelfaster/action/route_steps_sheet.dart';
 import 'package:wheelfaster/component/filter_sheet.dart';
 import 'package:wheelfaster/component/map_type_sheet.dart';
 import 'package:wheelfaster/component/marker.dart';
@@ -110,9 +110,8 @@ class _AllMapState extends State<AllMap> {
                   // Debug Type Ref
                   final typeRef = data['type'];
                   //print("Type Ref: $typeRef");
-                  final String typeId = (typeRef is DocumentReference)
-                      ? typeRef.id
-                      : 'UNKNOWN';
+                  final String typeId =
+                      (typeRef is DocumentReference) ? typeRef.id : 'UNKNOWN';
                   // print(" Type ID: $typeId");
 
                   final key = typeId.trim().toUpperCase();
@@ -123,7 +122,7 @@ class _AllMapState extends State<AllMap> {
                       )
                       .doc(doc.id);
 
-                  print("Place Ref: ${placeRef.path} $selectedType");
+                  // print("Place Ref: ${placeRef.path} $selectedType");
 
                   final placeName = data['name'] ?? 'ไม่มีชื่อ';
                   final placeDesc = data['description'] ?? '';
@@ -146,8 +145,7 @@ class _AllMapState extends State<AllMap> {
                       'icon': Icons.accessible_forward,
                     },
                   };
-                  final selectedConfig =
-                      typeConfig[key] ??
+                  final selectedConfig = typeConfig[key] ??
                       {
                         'color': const Color.fromARGB(255, 0, 0, 0),
                         'icon': Icons.location_city,
@@ -220,9 +218,8 @@ class _AllMapState extends State<AllMap> {
                               data['description']?.toString() ?? placeDesc;
 
                           final floorData = data['floor'];
-                          final String? floor = (floorData is String)
-                              ? floorData
-                              : null;
+                          final String? floor =
+                              (floorData is String) ? floorData : null;
 
                           final rawAmenityRefs = data['place_amenities'];
                           final List<dynamic>? amenityRefs =

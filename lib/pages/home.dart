@@ -46,7 +46,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // ---------------- หน้าแรก (Home Page) ----------------
+  //  หน้าแรก (Home Page)
   Widget _buildHomePage() {
     return SafeArea(
       child: Padding(
@@ -152,8 +152,8 @@ class _HomeState extends State<Home> {
                           ),
                           _buildGridButton(Icons.elevator, "Elevator", () {
                             context.read<MyMapController>().setFilter(
-                              'elevator',
-                            );
+                                  'elevator',
+                                );
                             setState(() => _selectedTab = 2);
                           }),
                           _buildGridButton(
@@ -161,8 +161,8 @@ class _HomeState extends State<Home> {
                             "Disabled Parking",
                             () {
                               context.read<MyMapController>().setFilter(
-                                'PARKING',
-                              );
+                                    'PARKING',
+                                  );
                               setState(() => _selectedTab = 2);
                             },
                           ),

@@ -17,21 +17,6 @@ Future<MapTypeValue?> showMapTypeSheet({
     return ListTile(
       leading: Icon(icon, color: Colors.black),
       title: Text(label, style: const TextStyle(color: Colors.black)),
-
-      // leading: Icon(
-      //   icon,
-      //   color: current == value ? Colors.white : Colors.black54,
-      // ),
-      // title: Text(
-      //   label,
-      //   style: TextStyle(
-      //     fontWeight: current == value ? FontWeight.w600 : FontWeight.w400,
-      //     color: current == value ? Colors.white : Colors.black87,
-      //   ),
-      // ),
-      // selected: current == value,
-      // selectedTileColor: Colors.green, // พื้นหลังฟ้าเมื่อเลือก
-      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       onTap: () {
         onSelected?.call(value);
         Navigator.pop(context, value);

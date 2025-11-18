@@ -1,9 +1,7 @@
 // lib/component/place_sheet.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:wheelfaster/component/auth/login_modal.dart';
 import 'package:wheelfaster/component/ReviewsModal.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wheelfaster/component/reviews_list.dart';
 
 class PlaceSheet extends StatelessWidget {
@@ -46,7 +44,7 @@ class PlaceSheet extends StatelessWidget {
       child: CircularProgressIndicator(
         value: loadingProgress.expectedTotalBytes != null
             ? loadingProgress.cumulativeBytesLoaded /
-                  loadingProgress.expectedTotalBytes!
+                loadingProgress.expectedTotalBytes!
             : null,
       ),
     );
@@ -221,7 +219,8 @@ class PlaceSheet extends StatelessWidget {
                                         color: Colors.black87,
                                       ),
                                     )
-                                  : const SizedBox.shrink(); // ถ้าไม่มี floor ก็ไม่ต้องแสดง
+                                  : const SizedBox
+                                      .shrink(); // ถ้าไม่มี floor ก็ไม่ต้องแสดง
                             },
                           ),
 
@@ -416,9 +415,8 @@ class PlaceSheet extends StatelessWidget {
                                     }
 
                                     // --- ⭐️ เริ่มดึงข้อมูล Amenity ---
-                                    final data =
-                                        snapshot.data!.data()
-                                            as Map<String, dynamic>;
+                                    final data = snapshot.data!.data()
+                                        as Map<String, dynamic>;
                                     final name = data['name'] ?? 'ไม่มีชื่อ';
                                     final floor = data['floor'] ?? '';
 
@@ -441,8 +439,8 @@ class PlaceSheet extends StatelessWidget {
                                         } else if (e is Map &&
                                             (e['url'] != null ||
                                                 e['src'] != null)) {
-                                          final url = (e['url'] ?? e['src'])
-                                              .toString();
+                                          final url =
+                                              (e['url'] ?? e['src']).toString();
                                           if (url.startsWith('http'))
                                             amenityImages.add(url);
                                         }
@@ -498,21 +496,21 @@ class PlaceSheet extends StatelessWidget {
                                               itemCount: amenityImages.length,
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                    horizontal: 16.0,
-                                                  ),
+                                                horizontal: 16.0,
+                                              ),
                                               itemBuilder: (context, index) {
                                                 final url =
                                                     amenityImages[index];
                                                 return Padding(
                                                   padding:
                                                       const EdgeInsets.only(
-                                                        right: 8.0,
-                                                      ),
+                                                    right: 8.0,
+                                                  ),
                                                   child: ClipRRect(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                          12.0,
-                                                        ),
+                                                      12.0,
+                                                    ),
                                                     child: Image.network(
                                                       url,
                                                       width: 250,
@@ -589,7 +587,6 @@ Future<void> showPlaceSheet(
   // ⭐️ 6. เพิ่ม `floor` และ `amenityRefs` ที่ขาดไป
   String? floor,
   List<dynamic>? amenityRefs,
-
   VoidCallback? onReview,
   VoidCallback? onNavigate,
 }) {
