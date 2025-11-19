@@ -9,11 +9,11 @@ import '../controllers/map_controller.dart';
 import '../services/ors_service.dart';
 
 Future<void> navigateToPlaceWheelchair(
-  BuildContext context, {
-  required DocumentReference<Map<String, dynamic>> placeRef,
-  required String orsApiKey,
-  bool showStepsSheet = true,
-}) async {
+    BuildContext context, {
+    required DocumentReference<Map<String, dynamic>> placeRef,
+    required String orsApiKey,
+    bool showStepsSheet = true,
+  }) async {
   try {
     // 1) ตรวจว่า location service เปิดอยู่หรือไม่
     final serviceEnabled = await Geolocator.isLocationServiceEnabled(); // NEW
@@ -23,7 +23,7 @@ Future<void> navigateToPlaceWheelchair(
     }
 
     // 2) ขอสิทธิ์ตำแหน่ง (runtime permission)
-    LocationPermission perm = await Geolocator.checkPermission(); // NEW
+    LocationPermission perm = await Geolocator.checkPermission(); 
     if (perm == LocationPermission.denied) {
       perm = await Geolocator.requestPermission();
     }
@@ -45,8 +45,8 @@ Future<void> navigateToPlaceWheelchair(
 
     // 4) อ่านพิกัดปลายทางจาก placeRef
     final to = await _getLatLngFromPlaceRef(placeRef);
-    print('FROM: ${from.latitude}, ${from.longitude}');
-    print('TO  : ${to.latitude}, ${to.longitude}');
+    //print('FROM: ${from.latitude}, ${from.longitude}');
+    //print('TO  : ${to.latitude}, ${to.longitude}');
     // 5) เรียก ORS wheelchair
     final ors = OrsService(orsApiKey);
     final route = await ors.wheelchairRoute(from: from, to: to);
@@ -87,24 +87,24 @@ Future<void> navigateToPlaceWheelchair(
 
 Future<LatLng> _getLatLngFromPlaceRef(
   DocumentReference<Map<String, dynamic>> placeRef,
-) async {
-  print("Fetching document from: ${placeRef.path}");
-  final snap = await placeRef.get();
-
-  if (!snap.exists) {
-    print("Document does not exist!");
+  ) 
+  async {
+  //print("Fetching document from: ${placeRef.path}");
+    final snap = await placeRef.get();
+    if (!snap.exists) {
+    //print("Document does not exist!");
     throw Exception('ไม่พบเอกสารที่ placeRef');
   }
 
   final data = snap.data() ?? {};
-  print("Document data: $data");
+  //print("Document data: $data");
 
   final loc = data['location'];
-  print("Location field: $loc (type: ${loc?.runtimeType})");
+  //print("Location field: $loc (type: ${loc?.runtimeType})");
 
   // Check GeoPoint
   if (loc is GeoPoint) {
-    print("Found GeoPoint: ${loc.latitude}, ${loc.longitude}");
+    //print("Found GeoPoint: ${loc.latitude}, ${loc.longitude}");
     return LatLng(loc.latitude, loc.longitude);
   }
 
@@ -112,7 +112,7 @@ Future<LatLng> _getLatLngFromPlaceRef(
   if (loc is List && loc.length >= 2) {
     final lat = (loc[0] as num).toDouble();
     final lng = (loc[1] as num).toDouble();
-    print("Found List: $lat, $lng");
+    //print("Found List: $lat, $lng");
     return LatLng(lat, lng);
   }
 
@@ -120,11 +120,11 @@ Future<LatLng> _getLatLngFromPlaceRef(
   if (loc is Map) {
     final lat = (loc['lat'] as num?)?.toDouble();
     final lng = (loc['lng'] as num?)?.toDouble();
-    print("Found Map: lat=$lat, lng=$lng");
+    //print("Found Map: lat=$lat, lng=$lng");
     if (lat != null && lng != null) return LatLng(lat, lng);
   }
 
-  print("Could not parse location data!");
+  //print("Could not parse location data!");
   throw Exception('ไม่พบพิกัดปลายทางใน placeRef (format ไม่ถูกต้อง)');
 }
 

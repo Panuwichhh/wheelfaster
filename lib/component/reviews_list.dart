@@ -18,9 +18,9 @@ class ReviewsList extends StatelessWidget {
     return StreamBuilder<List<Review>>(
       stream: stream,
       builder: (context, snapshot) {
-        print(
-          'conn=${snapshot.connectionState} hasData=${snapshot.hasData} err=${snapshot.error}',
-        );
+        //print(
+          //'conn=${snapshot.connectionState} hasData=${snapshot.hasData} err=${snapshot.error}',
+        //);
         if (snapshot.hasError) {
           return Center(child: Text("เกิดข้อผิดพลาด: ${snapshot.error}"));
         }
@@ -34,9 +34,9 @@ class ReviewsList extends StatelessWidget {
         }
 
         return ListView.separated(
-          shrinkWrap: true, // ✅ ให้ขยายแค่เท่าคอนเทนต์
+          shrinkWrap: true, 
           physics:
-              const NeverScrollableScrollPhysics(), // ✅ ไม่สกอร์ลเอง (ให้สกอร์ลชั้นนอกทำงาน)
+              const NeverScrollableScrollPhysics(), 
           padding: const EdgeInsets.all(12),
           itemCount: items.length,
           separatorBuilder: (_, __) => const Divider(height: 1),
@@ -45,15 +45,6 @@ class ReviewsList extends StatelessWidget {
             return ListTile(
               title: Text("⭐️ ${r.rating.toStringAsFixed(1)}  •  ${r.comment}"),
               subtitle: Text("by ${r.userId}  •  ${r.createdAt}"),
-              // trailing: IconButton(
-              //   icon: const Icon(Icons.delete_outline),
-              //   onPressed: () async {
-              //     await _service.deleteReview(r.id);
-              //     ScaffoldMessenger.of(
-              //       context,
-              //     ).showSnackBar(const SnackBar(content: Text("ลบรีวิวแล้ว")));
-              //   },
-              // ),
             );
           },
         );

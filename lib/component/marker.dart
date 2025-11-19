@@ -45,17 +45,6 @@ class LabelMarker extends StatelessWidget {
                 ),
               ],
             ),
-
-            // ===== ถ้าอยากใช้ title =====
-            // const SizedBox(height: 4),
-            // Text(
-            //   title,
-            //   style: const TextStyle(
-            //     fontSize: 12,
-            //     fontWeight: FontWeight.w500,
-            //     color: Colors.black87,
-            //   ),
-            // ),
           ],
         ),
       ),

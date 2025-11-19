@@ -3,19 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:wheelfaster/controllers/map_controller.dart';
 import 'package:wheelfaster/notifier/notifier.dart';
 import 'package:wheelfaster/pages/app.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-
-import 'firebase_options.dart';
 import 'package:wheelfaster/services/place_amenity_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
    WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
- 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+
+   await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: dotenv.env['FIREBASE_API_KEY']!,
+      appId: dotenv.env['FIREBASE_APP_ID']!,
+      messagingSenderId: dotenv.env['FIREBASE_MESSAGING_ID']!,
+      projectId: dotenv.env['FIREBASE_PROJECT_ID']!,
+      storageBucket: dotenv.env['FIREBASE_BUCKET']!,
+    ),
   );
 
   runApp(
@@ -30,12 +33,12 @@ void main() async {
   );
 }
 
+
 class Myapp extends StatelessWidget {
   const Myapp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme textTheme = GoogleFonts.kanitTextTheme();
 
     return ValueListenableBuilder(
       valueListenable: isDarkModeNotifier,

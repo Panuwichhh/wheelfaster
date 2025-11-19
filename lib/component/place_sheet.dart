@@ -1,9 +1,7 @@
 // lib/component/place_sheet.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:wheelfaster/component/auth/login_modal.dart';
 import 'package:wheelfaster/component/ReviewsModal.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wheelfaster/component/reviews_list.dart';
 import 'package:wheelfaster/extension.dart';
 
@@ -16,7 +14,7 @@ class PlaceSheet extends StatelessWidget {
   final int? elevators;
   final int? parkings;
   final List<dynamic>? amenityRefs;
-  final String? floor; // ⭐️ เพิ่ม field 'floor'
+  final String? floor; 
 
   final VoidCallback? onReview;
   final VoidCallback? onNavigate;
@@ -31,12 +29,12 @@ class PlaceSheet extends StatelessWidget {
     this.elevators,
     this.parkings,
     this.amenityRefs,
-    this.floor, // ⭐️ เพิ่ม 'floor' ใน constructor
+    this.floor,
     this.onReview,
     this.onNavigate,
   });
 
-  // ⭐️ เพิ่ม helper functions สำหรับ Image.network ที่หายไป
+  
   Widget _loadingBuilder(
     BuildContext context,
     Widget child,
@@ -68,7 +66,6 @@ class PlaceSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final surface = Theme.of(context).colorScheme.surface;
-    // final user = FirebaseAuth.instance.currentUser;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.28,
@@ -116,7 +113,7 @@ class PlaceSheet extends StatelessWidget {
                     fontSize: 20,
                   ),
                 ),
-                // ⭐️ แก้ไข subtitle ให้แสดง 'floor' (ถ้ามี)
+  
                 subtitle: Text(
                   (floor != null && floor!.isNotEmpty)
                       ? 'ชั้น $floor'
@@ -137,7 +134,7 @@ class PlaceSheet extends StatelessWidget {
                   controller: scrollController,
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                   children: [
-                    // ... (ส่วนแสดง toilets, elevators, parkings ... เหมือนเดิม)
+                   
                     if (toilets != null ||
                         elevators != null ||
                         parkings != null) ...[
@@ -209,7 +206,6 @@ class PlaceSheet extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // ⭐️ แทนที่ '###' ด้วย 'floor' (แบบ Null-safe)
                           Builder(
                             builder: (context) {
                               final localFloor = floor; // สร้าง local var
@@ -226,8 +222,7 @@ class PlaceSheet extends StatelessWidget {
                             },
                           ),
 
-                          Row(
-                            // ... (ปุ่ม Logout, นำทาง, รีวิว ... เหมือนเดิม)
+                          Row(                           
                             children: [
                               if (onNavigate != null) ...[
                                 const SizedBox(width: 8),
@@ -303,29 +298,14 @@ class PlaceSheet extends StatelessWidget {
                           if (imageUrls.isEmpty) return const SizedBox.shrink();
 
                           return Container(
-                            height: 200,
-                            // 1. ⭐️ (แนะนำ) ลบ margin ออกจาก Container...
-                            // margin: const EdgeInsets.all(16),
-
-                            // 2. ⭐️ (แนะนำ) ลบ decoration ออกจาก Container
-                            // decoration: BoxDecoration(
-                            //   borderRadius: BorderRadius.circular(12),
-                            //   color: Colors.black12,
-                            // ),
-
-                            // 3. ⭐️ เปลี่ยน child เป็น ListView.builder
+                            height: 200,                        
                             child: ListView.builder(
-                              // 4. ⭐️ กำหนดให้เลื่อนแนวนอน
-                              scrollDirection: Axis.horizontal,
-
-                              // 5. ⭐️ ย้าย padding มาไว้ที่นี่ (เพื่อให้เลื่อนได้ถึงขอบ)
+                              scrollDirection: Axis.horizontal,                           
                               padding: const EdgeInsets.all(16.0),
 
                               itemCount: imageUrls.length,
                               itemBuilder: (context, index) {
                                 final url = imageUrls[index];
-
-                                // 6. ⭐️ เพิ่ม Padding "ระหว่าง" รูปภาพ
                                 return Padding(
                                   padding: const EdgeInsets.only(
                                     right: 10.0,
@@ -335,11 +315,8 @@ class PlaceSheet extends StatelessWidget {
                                     child: Image.network(
                                       url,
                                       fit: BoxFit.cover,
-
-                                      // 7. ⭐️ (สำคัญมาก) ต้องกำหนดความกว้าง!!
                                       width:
-                                          300, // <-- ปรับความกว้างของรูปได้ตามต้องการ
-
+                                          300, 
                                       loadingBuilder: _loadingBuilder,
                                       errorBuilder: _errorBuilder,
                                     ),
@@ -350,8 +327,7 @@ class PlaceSheet extends StatelessWidget {
                           );
                         },
                       ),
-
-                    // ⭐️ ส่วนแสดง `amenityRefs` (สิ่งอำนวยความสะดวก)
+                    // สิ่งอำนวยความสะดวก
                     Builder(
                       builder: (context) {
                         final refs = amenityRefs;
@@ -417,14 +393,14 @@ class PlaceSheet extends StatelessWidget {
                                       );
                                     }
 
-                                    // --- ⭐️ เริ่มดึงข้อมูล Amenity ---
+                                    // --- ดึงข้อมูล Amenity ---
                                     final data =
                                         snapshot.data!.data()
                                             as Map<String, dynamic>;
                                     final name = data['name'] ?? 'ไม่มีชื่อ';
                                     final floor = data['floor'] ?? '';
 
-                                    // 1. ดึงข้อมูลรูปภาพ (‼️ เช็คชื่อ field 'images' หรือ 'url_image' ให้ถูก)
+                                    // 1. ดึงข้อมูลรูปภาพ 
                                     final rawImages = data['images'];
 
                                     // 2. Normalize รูปภาพ
@@ -488,7 +464,7 @@ class PlaceSheet extends StatelessWidget {
                                           ),
                                         ),
 
-                                        // 4. ⭐️ แสดง Horizontal ListView (ตามที่ขอ)
+                                        // 4. แสดง Horizontal ListView 
                                         if (amenityImages.isNotEmpty)
                                           Container(
                                             height: 150,
@@ -537,7 +513,6 @@ class PlaceSheet extends StatelessWidget {
                                         ), // เส้นคั่น
                                       ],
                                     );
-                                    // --- ⭐️ สิ้นสุดส่วน Amenity ---
                                   },
                                 );
                               }
@@ -588,7 +563,6 @@ Future<void> showPlaceSheet(
   int? elevators,
   int? parkings,
 
-  // ⭐️ 6. เพิ่ม `floor` และ `amenityRefs` ที่ขาดไป
   String? floor,
   List<dynamic>? amenityRefs,
 
@@ -608,7 +582,6 @@ Future<void> showPlaceSheet(
       elevators: elevators,
       parkings: parkings,
 
-      // ⭐️ 7. ส่งค่า `floor` และ `amenityRefs`
       floor: floor,
       amenityRefs: amenityRefs,
 

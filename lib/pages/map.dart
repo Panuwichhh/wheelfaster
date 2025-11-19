@@ -16,8 +16,6 @@ import '../controllers/map_controller.dart';
 import 'package:wheelfaster/extension.dart';
 
 
-
-
 class AllMap extends StatefulWidget {
   const AllMap({super.key});
 
@@ -80,7 +78,7 @@ class _AllMapState extends State<AllMap> {
               minZoom: 14,
               maxZoom: 18,
               interactionOptions: const InteractionOptions(
-                flags: InteractiveFlag.all, // เปิดให้ซูม/แพน/หมุนได้
+                flags: InteractiveFlag.all, // เปิดให้ซูม/หมุนได้
               ),
             ),
             children: [
@@ -160,7 +158,7 @@ class _AllMapState extends State<AllMap> {
                           )
                           .doc(doc.id);
         
-                      print("Place Ref: ${placeRef.path} $selectedType");
+                      //print("Place Ref: ${placeRef.path} $selectedType");
         
                       final placeName = data['name'] ?? 'ไม่มีชื่อ';
                       final placeDesc = data['description'] ?? '';
@@ -199,7 +197,7 @@ class _AllMapState extends State<AllMap> {
                           tween: Tween(begin: 0.0, end: 1.0),
                           duration: const Duration(milliseconds: 800),
                           builder: (context, value, child) {
-                            // value จะวิ่งจาก 0.0 → 1.0 (linear)
+                            // value จะวิ่งจาก 0.0  ไป 1.0 (linear)
                             final opacity = value;
                             final scale = Tween<double>(
                               begin: 0.8,
@@ -306,6 +304,21 @@ class _AllMapState extends State<AllMap> {
                   );
                 },
               ),
+              if (c.routePoints.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: c.routePoints,
+                      strokeWidth: 6,
+                      color: const Color.fromARGB(
+                        255,
+                        29,
+                        108,
+                        255,
+                      ), // เปลี่ยนสีตรงนี้
+                    ),
+                  ],
+                ),
               Positioned(
                 bottom: 16,
                 right: 16,
@@ -366,21 +379,7 @@ class _AllMapState extends State<AllMap> {
                   ],
                 ),
               ),
-              if (c.routePoints.isNotEmpty)
-                PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: c.routePoints,
-                      strokeWidth: 6,
-                      color: const Color.fromARGB(
-                        255,
-                        29,
-                        108,
-                        255,
-                      ), // เปลี่ยนสีตรงนี้
-                    ),
-                  ],
-                ),
+              
             ],
           ),
         );

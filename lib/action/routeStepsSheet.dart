@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:wheelfaster/extension.dart';
 import '../controllers/map_controller.dart';
 
-/// ใช้ร่วมกับ showModalBottomSheet(backgroundColor: Colors.transparent, isScrollControlled: true)
 class RouteStepsSheet extends StatelessWidget {
   const RouteStepsSheet({super.key});
 
@@ -75,7 +74,7 @@ class _RouteStepsPanel extends StatelessWidget {
 
             Expanded(
               child: ListView.separated(
-                controller: scrollController, // ✅ ต้องใส่ controller ตรงนี้
+                controller: scrollController, 
                 itemCount: c.routeSteps.length,
                 separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (_, i) {

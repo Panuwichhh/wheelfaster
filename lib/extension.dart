@@ -7,5 +7,5 @@ extension Themeblackwhite on BuildContext {
   Color get pureOn => isDark ? const Color.fromARGB(255, 255, 255, 255) : Colors.black;
   Color get onBlock => isDark ? const Color(0xFF161616) : const Color.fromARGB(255, 255, 255, 255);
   Color get onBlock2 => isDark ? const Color(0xFF272727) : const Color.fromARGB(255, 255, 255, 255);
-  Color get onRoot => isDark ? const Color(0xFF01CE55) : const Color.fromARGB(255, 3, 38, 17);
+  Color get onRoot => isDark ? const Color(0xFF01CE55) : const Color(0xFF01CE55);
 }

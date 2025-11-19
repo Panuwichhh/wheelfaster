@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/review.dart';
 import 'dart:math';
-import 'ip_service.dart'; // ⭐ import เข้ามา
-
 class ReviewService {
   String _randomUserId() {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -20,8 +18,6 @@ class ReviewService {
         toFirestore: (review, _) => review.toMap(),
       );
 
-  // ⭐ สร้าง instance ของ IpService ไว้ใช้
-  final IpService _ipService = IpService();
 
   /// ดึงรีวิวทั้งหมด
   Stream<List<Review>> streamAll({int limit = 50}) {
@@ -39,7 +35,7 @@ class ReviewService {
   }) {
     return _col
         .where(
-          'placeRef', // ⭐ แนะนำให้ใช้ key เดียวกับ model เช่น placeRef
+          'placeRef', 
           isEqualTo: placeRef,
         )
         .orderBy('createdAt', descending: true)
@@ -58,11 +54,11 @@ class ReviewService {
     try {
       final uid = userId ?? _randomUserId();
 
-      print("🔥 กำลังเพิ่มรีวิว...");
-      print("📌 placeRef = ${placeRef.path}");
-      print("⭐ rating = $rating");
-      print("💬 comment = $comment");
-      print("👤 userId = $uid");
+      // print("กำลังเพิ่มรีวิว...");
+      // print("placeRef = ${placeRef.path}");
+      // print("rating = $rating");
+      // print("comment = $comment");
+      // print("userId = $uid");
 
       await _col.add(
         Review(
@@ -76,10 +72,10 @@ class ReviewService {
         ),
       );
 
-      print("✅ เพิ่มรีวิวสำเร็จ!");
+      // print("เพิ่มรีวิวสำเร็จ!");
     } catch (e, stack) {
-      print("❌ เพิ่มรีวิวล้มเหลว: $e");
-      print(stack);
+      // print("เพิ่มรีวิวล้มเหลว: $e");
+      // print(stack);
       rethrow; // เผื่อ UI จับ error ต่อ
     }
   }

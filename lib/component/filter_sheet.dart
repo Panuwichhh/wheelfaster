@@ -1,8 +1,6 @@
 // lib/component/filter_sheet.dart
 import 'package:flutter/material.dart';
 
-/// ตัวเลือกที่ component นี้จะส่งกลับไปให้ผู้เรียก
-/// ใช้ key สั้นๆ เช่น 'ALL' | 'toilet' | 'elevator' | 'ramp' | 'parking' | 'service_point' | 'special_path'
 typedef OnPickFilter = void Function(String key);
 
 class FilterSheet extends StatelessWidget {
@@ -63,7 +61,6 @@ class FilterSheet extends StatelessWidget {
               },
             ),
 
-            // (เพิ่มได้ตามต้องการ)
             // ที่จอดผู้พิการ
             ListTile(
               leading: const Icon(Icons.local_parking),
@@ -73,15 +70,7 @@ class FilterSheet extends StatelessWidget {
                 onPick('parking');
               },
             ),
-            // จุดบริการ
-            // ListTile(
-            //   leading: const Icon(Icons.support_agent),
-            //   title: const Text("จุดให้บริการ"),
-            //   onTap: () {
-            //     Navigator.pop(context);
-            //     onPick('service_point');
-            //   },
-            // ),
+          
             ListTile(
               leading: const Icon(Icons.location_city),
               title: const Text("สถานที่"),
@@ -97,7 +86,6 @@ class FilterSheet extends StatelessWidget {
   }
 }
 
-/// helper function เรียกเปิด bottom sheet แบบง่าย
 Future<void> showFilterOptionsSheet(
   BuildContext context, {
   required OnPickFilter onPick,

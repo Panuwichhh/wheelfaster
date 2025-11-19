@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wheelfaster/services/review_service.dart';
 
 class ReviewModal extends StatefulWidget {
-  final DocumentReference placeRef; // ⭐ ต้องรับ placeRef
+  final DocumentReference placeRef; 
 
   const ReviewModal({super.key, required this.placeRef});
 
@@ -37,7 +37,7 @@ class _ReviewModalState extends State<ReviewModal> {
           const Text('ให้คะแนน', style: TextStyle(fontSize: 16)),
           const SizedBox(height: 10),
 
-          // ⭐ Rating Bar สีเขียว
+          //Rating Bar สีเขียว
           RatingBar.builder(
             initialRating: 0,
             minRating: 1,
@@ -50,7 +50,7 @@ class _ReviewModalState extends State<ReviewModal> {
 
           const SizedBox(height: 18),
 
-          // ⭐ Text Field สีเขียว
+          // Text Field สีเขียว
           TextField(
             controller: commentController,
             decoration: InputDecoration(
@@ -69,7 +69,7 @@ class _ReviewModalState extends State<ReviewModal> {
         ],
       ),
 
-      // ⭐ ปุ่มสีเขียว–ขาว
+      //ปุ่มสีเขียว–ขาว
       actionsPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       actions: [
         // ปุ่มยกเลิก

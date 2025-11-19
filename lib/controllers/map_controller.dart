@@ -20,7 +20,7 @@ class MyMapController extends ChangeNotifier {
 
   void setMapController(MapController controller) {
     _mapController = controller;
-    notifyListeners();
+    //notifyListeners();
   }
 
   // ===== Animated Map Move =====
@@ -89,12 +89,12 @@ class MyMapController extends ChangeNotifier {
       }
     }
 
-    // ถ้าผู้ใช้อยู่ไกลกว่า 10m จากเส้น ไม่ต้องตัด (กันเผื่อ GPS เพี้ยน)
-    if (closestDist > 40) return;
+    // ถ้าผู้ใช้อยู่ไกลกว่า 15m จากเส้น ไม่ต้องตัด (กันเผื่อ GPS เพี้ยน)
+    if (closestDist > 15) return;
 
     // ตัดจุดก่อนหน้าออก ให้เหลือเฉพาะเส้น ข้างหน้าผู้ใช้
     if (closestIndex > 0 && closestIndex < routePoints.length) {
-      routePoints = routePoints.sublist(closestIndex);
+      routePoints = List.from(routePoints.sublist(closestIndex));
 
       // ถ้าใกล้ถึงปลายทางแล้ว เคลียร์ route ทิ้งเลย
       if (routePoints.length < 5) {

@@ -7,7 +7,6 @@ import 'package:wheelfaster/extension.dart';
 import 'package:wheelfaster/notifier/notifier.dart';
 import 'package:wheelfaster/pages/map.dart';
 import 'package:wheelfaster/component/bottom_nav.dart';
-import 'package:wheelfaster/extension.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -26,8 +25,6 @@ class _HomeState extends State<Home> {
 
   @override
 Widget build(BuildContext context) {
-  final scheme = Theme.of(context).colorScheme;
-
   return Scaffold(
     backgroundColor: const Color(0xFF01CE55),
     body: Stack(

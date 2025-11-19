@@ -13,7 +13,7 @@ class IpService {
         return data['ip'];
       }
     } catch (e) {
-      print("Error getting IP: $e");
+      //print("Error getting IP: $e");
     }
     return null; // ดึงไม่ได้ให้เป็น null
   }
